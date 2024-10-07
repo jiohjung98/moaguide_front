@@ -8,7 +8,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="hidden shadow-custom-light border-b border-gray100 sm:block">
+    <div className="hidden shadow-custom-light border-b border-gray100 sm:block w-[90%] lg:w-[100%] mx-auto">
       <div className="max-w-[1000px] mx-auto flex items-center">
         <div
           onClick={() => {
@@ -39,12 +39,12 @@ const Navbar = () => {
         </div>
         <div
           onClick={() => {
-            router.push('/reportpage');
+            router.push('/practicepage');
           }}
           className={`px-4 py-3 flex-1 flex justify-center items-center cursor-pointer text-body5 desk2:text-heading4
-        ${pathname === '/reportpage' ? 'text-black border-b-[2px] border-black' : 'text-gray300'}
+        ${pathname === '/practicepage' ? 'text-black border-b-[2px] border-black' : 'text-gray300'}
         `}>
-          리포트
+          학습하기
         </div>
       </div>
     </div>

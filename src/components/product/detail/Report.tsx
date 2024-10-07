@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { formatDate } from '@/utils/FormatDate';
 import UseReportList from '@/factory/useReportList';
 import { useCallback } from 'react';
-import { IreportItem } from '@/types/ProductType';
+import { IreportItem } from '@/types/BuildingProductType';
 import NoticeItemSkeleton from '@/components/skeleton/NoticeItemSkeleton';
 import { Virtuoso } from 'react-virtuoso';
 const Report = () => {
@@ -22,7 +22,6 @@ const Report = () => {
   const allPosts = data?.pages.flatMap((page) => page.report) || [];
 
   //여기 계쏙 콘솔 찍히는 이유 알아오기
-  console.log(allPosts);
   const MOCK = {
     report: [
       {

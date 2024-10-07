@@ -26,15 +26,18 @@ const NavBar = ({ sort, setSort }: NavBarProps) => {
         `}>
             상세정보
           </div>
-          <div
+
+          {/* <div
             onClick={() => {
               setSort('report');
             }}
             className={`px-4 py-3 flex-1 flex justify-center items-center cursor-pointer text-body5 desk2:text-heading4
         ${sort === 'report' ? ' text-black border-b-[2px] border-purple-700' : 'text-gray300'}
         `}>
+
             리포트
-          </div>
+          </div> */}
+
           <div
             onClick={() => {
               setSort('news');
@@ -43,15 +46,6 @@ const NavBar = ({ sort, setSort }: NavBarProps) => {
         ${sort === 'news' ? ' text-black border-b-[2px] border-purple-700' : 'text-gray300'}
         `}>
             뉴스
-          </div>
-          <div
-            onClick={() => {
-              setSort('public');
-            }}
-            className={`px-4 py-3 flex-1 flex justify-center items-center cursor-pointer text-body5 desk2:text-heading4
-        ${sort === 'public' ? ' text-black border-b-[2px] border-purple-700' : 'text-gray300'}
-        `}>
-            공시
           </div>
         </div>
       </div>

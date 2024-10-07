@@ -1,29 +1,45 @@
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { login } from '@/service/auth';
 import { useAuthStore } from '@/store/userAuth.store';
-import throttle from 'lodash/throttle'; // lodash에서 throttle 함수 import
+import { useMemberStore } from '@/store/user.store'; 
+import throttle from 'lodash/throttle'; 
+import NaverLogin from './NaverLogin';
+import KakaoLogin from './KakaoLogin';
+import { login } from '@/service/auth';
 
 const SignLayout = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [rememberMe, setRememberMe] = useState(false); 
+  const [loginType, setLoginType] = useState<'local' | 'naver' | 'google' | 'kakao'>('local'); 
   const router = useRouter();
-  const { setIsLoggedIn } = useAuthStore();
+  const { isLoggedIn, setIsLoggedIn } = useAuthStore();  
+  const { setMember } = useMemberStore(); 
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/');
+    }
+  }, [isLoggedIn, router]);
 
   const throttledHandleLogin = throttle(async () => {
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       setIsLoggedIn(true);
+
+      setErrorMessage('');  
+  
       router.push('/');
     } catch (error) {
+      console.log(error);
       setErrorMessage('이메일 혹은 비밀번호가 일치하지 않습니다. 다시 시도해주세요.');
     }
-  }, 1000); 
+  }, 1000);
 
   return (
-    <div className="min-h-[calc(100vh-75px)] flex flex-col items-center justify-center">
+    <div className="min-h-[calc(100dvh-100px)] mb-[100px] flex flex-col items-center justify-center sm:min-h-[100vh] sm:mb-0">
       <section className="flex mt-8 mb-6">
         <Link href={'/'} className='cursor-pointer'>
           <img src="/images/logo.svg" alt="logo" className="w-[202px] h-[28px]" />
@@ -50,10 +66,12 @@ const SignLayout = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <div className="flex items-center mb-4 w-[320px]">
+        <div className="flex items-center w-[320px]">
           <input 
             type="checkbox" 
             id="rememberMe" 
+            checked={rememberMe} 
+            onChange={(e) => setRememberMe(e.target.checked)}
             className="mr-2"
           />
           <label htmlFor="rememberMe" className="text-sm text-gray-700">
@@ -68,7 +86,7 @@ const SignLayout = () => {
           )}
         </div>
         <button 
-          className="w-[320px] bg-gradient-to-r font-bold text-lg from-purple-500 to-indigo-500 text-white py-3 rounded-lg mb-4"
+          className="w-[320px] bg-gradient2 font-bold text-lg text-white py-3 rounded-lg mb-4"
           onClick={throttledHandleLogin} 
         >
           로그인
@@ -80,10 +98,10 @@ const SignLayout = () => {
           <a href="/find">이메일 / 비밀번호 찾기</a>
         </div>
       </section>
-       {/* <section className="mt-8"> */}
-        {/* <SocialLoginButtons /> */}
-      {/* </section> */}
-      {/* <div className="h-12" /> */}
+      <section className="mt-8 flex flex-col gap-3">
+        <KakaoLogin setLoginType={setLoginType} /> 
+        <NaverLogin setLoginType={setLoginType} /> 
+      </section>
     </div>
   );
 };

@@ -35,7 +35,7 @@ const ProductPagenation = ({ totalPages }: PaginationProps) => {
     setCurrentPage(page);
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
-    router.replace(`?${params.toString()}`);
+    router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   const handleNextRange = () => {
@@ -57,7 +57,7 @@ const ProductPagenation = ({ totalPages }: PaginationProps) => {
   };
 
   return (
-    <div className="flex justify-center items-center space-x-2">
+    <div className="flex justify-center items-center space-x-2 mt-10">
       <button
         onClick={handlePrevRange}
         disabled={currentRange === 0}

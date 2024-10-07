@@ -1,12 +1,13 @@
 'use client';
 import { useModalStore } from '@/store/modal.store';
 import { useMemberStore } from '@/store/user.store';
-import { checkEmail } from '@/utils/checkEmail';
 import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { disablePageScroll, enablePageScroll } from 'scroll-lock';
 import { checkNicknameAvailability } from '@/service/auth';
 import { updateNickname } from '@/service/change';
+import { getSocialInfo } from '@/utils/checkEmail';
+import { useAuthStore } from '@/store/userAuth.store';
 
 const Editpage = () => {
   const router = useRouter();
@@ -16,6 +17,10 @@ const Editpage = () => {
   const [isNameValid, setIsNameValid] = useState(false);
   const [isNameComplete, setIsNameComplete] = useState('');
   const { setModalType, setOpen, open } = useModalStore();
+
+  const { isLoggedIn } = useAuthStore();
+
+  const socialInfo = getSocialInfo(member.loginType, member.memberEmail); 
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     const regex = e.target.value.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
@@ -58,6 +63,12 @@ const Editpage = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push('/');
+    }
+  }, [isLoggedIn, router]);
   
   useEffect(() => {
     setIsNameValid(nameValue.length >= 3);
@@ -73,7 +84,7 @@ const Editpage = () => {
   }, [open]);
 
   return (
-    <div className="max-w-[640px] w-full mx-auto">
+    <div className="min-h-[calc(100dvh-160px)] mb-[20px] sm:mb-0 px-5 mt-5 w-full mx-auto sm:max-w-[640px] sm:mt-10 sm:px-0">
       <div onClick={() => router.back()} className="py-[14px]">
         <img src="/images/mypage/left.svg" alt="" className="cursor-pointer" />
       </div>
@@ -92,20 +103,20 @@ const Editpage = () => {
                 placeholder="닉네임 입력"
                 value={nameValue}
                 onChange={handleNameChange}
-                className={`flex-1 bg-bg rounded-[12px] px-4 py-[14px] mt-2 text-body2 
-              outline-none
+                className={`flex-1 bg-bg rounded-[12px] px-4 py-[14px] mt-2 text-body2 outline-none flex-grow
               ${isNameComplete === 'no' && 'outline-error'}
               ${isNameComplete === 'yes' && 'outline-success'}
               `}
+              style={{ minWidth: '0' }} 
               />
               {isNameValid ? (
                 <div
                   onClick={checkNameDuplicate}
-                  className="ml-[6px] cursor-pointer flex mt-[8px] px-4 py-[14px] bg-black rounded-[12px] text-body5 text-white ">
+                  className="ml-[6px] cursor-pointer flex mt-[8px] px-4 py-[14px] bg-black rounded-[12px] text-body5 text-white flex-shrink-0">
                   중복확인
                 </div>
               ) : (
-                <div className="ml-[6px] flex mt-[8px] px-4 py-[14px] bg-gray100 rounded-[12px] text-body5 text-gray400 ">
+                <div className="ml-[6px] flex mt-[8px] px-4 py-[14px] bg-gray100 rounded-[12px] text-body5 text-gray400 flex-shrink-0">
                   중복확인
                 </div>
               )}
@@ -136,9 +147,9 @@ const Editpage = () => {
         <div className="mt-5 text-body4">
           <div className="flex justify-between items-center">
             <div>이메일</div>
-            <div className="flex items-center gap-[6px]">
-              <img src="/images/mypage/social.svg" alt="" />
-              <div>{checkEmail(member?.memberEmail)} 가입</div>
+            <div className="flex items-center gap-[8px]">
+              {socialInfo.imgSrc && <img src={socialInfo.imgSrc} alt="socialLogo" width={18} height={18}/>}
+              <div>{socialInfo.platform} 가입</div>
             </div>
           </div>
           <div className=" flex justify-between mt-[13px] pb-5 border-b border-gray100">
@@ -159,7 +170,7 @@ const Editpage = () => {
         <div className="mt-5 pb-5 ">
           <div className="text-body4 flex justify-between items-center">
             <div>휴대폰 번호</div>
-            <div>{member.memberPhone}</div>
+            <div>{member?.memberPhone || '없음'}</div>
           </div>
           <div className=" flex justify-between text-gray400 text-body7 mt-5 pb-5 border-b border-gray100">
             <div className="flex-1" />
@@ -195,7 +206,6 @@ const Editpage = () => {
           </div>
         )}
       </div>
-      <div className="h-[140px]" />
     </div>
   );
 };

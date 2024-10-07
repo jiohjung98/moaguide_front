@@ -6,14 +6,29 @@ import Filter from '@/components/product/Filter';
 import TopProduct from '@/components/product/TopProduct';
 import Report from '@/components/product/Report';
 import React, { useState } from 'react';
-import ProductSort from '@/components/product/ProductSort';
-import ProductContentList from '@/components/product/ProductList';
-import { ISummaryData, IReportData, IProductDetailData } from '@/types/Diviend';
+import ProductIsdealSort from '@/components/product/ProductIsdealSort';
+import ProductDealContentList from '@/components/product/ProductDealContentList';
+import {
+  ISummaryData,
+  IReportData,
+  IProductDealDetailData,
+  IProductEndRecruitmentData,
+  IProductRecruitmentData
+} from '@/types/Diviend';
+import ProductClassification from './ProductClassification';
+import { useRouter, useSearchParams } from 'next/navigation';
+import ProductRecruitmentSort from './ProductRecruitmentSort';
+import ProductEndRecruitmentSort from './ProductEndRecruitmentSort';
+import ProductRecruitmentContentList from './ProductRecruitmentContentList';
+import ProductEndRecruitmentContentList from './ProductEndRecruitmentContentList';
 
 interface IProductBuildingProps extends ISummaryData, IReportData {
-  content: IProductDetailData['content'];
-  totalPages: IProductDetailData['totalPages'];
-  pageNumber: IProductDetailData['pageable']['pageNumber'];
+  content:
+    | IProductDealDetailData['product']
+    | IProductEndRecruitmentData['product']
+    | IProductRecruitmentData['product'];
+  totalPages: IProductDealDetailData['totalPages'];
+  pageNumber: IProductDealDetailData['pageable']['pageNumber'];
 }
 
 const Product = ({
@@ -28,8 +43,11 @@ const Product = ({
   const summaryData = summary;
   const reportData = report;
   const contentData = content;
-  console.log(reportData);
+  const [classification, setClassification] = useState('isdeal');
   const [sort, setSort] = useState('profit');
+  const searchParams = useSearchParams();
+  const sorted = searchParams.get('subcategory');
+
   return (
     <div>
       {/* <Navbar /> */}
@@ -56,26 +74,57 @@ const Product = ({
         <TopProduct summary={summaryData} />
       </Container>
 
-      <div className=" mt-[40px] mb-[40px] w-atuo h-[0px] border border-[#eceef2]"></div>
+      <div className=" mt-[40px] mb-[40px] w-atuo h-[0px] border border-[#eceef2]" />
 
-      <Container>
+      {/* <Container>
         <div className="text-black text-lg font-bold mb-[26px] ml-[20px]">
           관련 리포트
         </div>
 
         <Report report={reportData} />
-      </Container>
+      </Container> */}
 
-      <div className=" mt-[40px] mb-[10px] w-atuo h-[0px] border border-[#eceef2]"></div>
+      <div className=" mt-[40px] mb-[10px] w-atuo h-[0px] border border-[#eceef2]" />
       <Container>
-        <ProductSort sort={sort} setSort={setSort} />
+        <ProductClassification
+          classification={classification}
+          setClassification={setClassification}
+        />
       </Container>
-      <div className=" mt-[10px] mb-[10px] w-atuo h-[0px] border border-[#eceef2]"></div>
-      <ProductContentList
-        content={contentData}
-        totalPages={totalPages}
-        pageNumber={pageNumber}
-      />
+      <div className=" mt-[5px] mb-[10px] w-atuo h-[0px] border border-[#eceef2]" />
+      <Container>
+        {sorted === 'start' ? (
+          <ProductRecruitmentSort sort={sort} setSort={setSort} />
+        ) : sorted === 'end' ? (
+          <ProductEndRecruitmentSort />
+        ) : (
+          <ProductIsdealSort sort={sort} setSort={setSort} />
+        )}
+      </Container>
+      <div className=" mt-[10px] mb-[10px] w-atuo h-[0px] border border-[#eceef2]" />
+
+      {sorted === 'start' ? (
+        //모집중
+        <ProductRecruitmentContentList
+          content={contentData as IProductRecruitmentData['product']}
+          totalPages={totalPages}
+          pageNumber={pageNumber}
+        />
+      ) : // 모집완료
+      sorted === 'end' ? (
+        <ProductEndRecruitmentContentList
+          content={contentData as IProductEndRecruitmentData['product']}
+          totalPages={totalPages}
+          pageNumber={pageNumber}
+        />
+      ) : (
+        //거래가능
+        <ProductDealContentList
+          content={contentData as IProductDealDetailData['product']}
+          totalPages={totalPages}
+          pageNumber={pageNumber}
+        />
+      )}
     </div>
   );
 };

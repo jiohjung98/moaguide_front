@@ -2,10 +2,23 @@
 const nextConfig = {
   experimental: { instrumentationHook: true },
   reactStrictMode: true,
-  swcMinify: true,
-  compiler: {
-    styledComponents: true
+
+  images: {
+    domains: [
+      'www.kobis.or.kr',
+      'd2qf2amuam62ps.cloudfront.net',
+      'scs-phinf.pstatic.net',
+      'api.moaguide.com',
+      'entertain.naver.com',
+    ],
   },
+  
+  swcMinify: true,
+  
+  compiler: {
+    styledComponents: true,
+  },
+
   webpack: (config, { isServer }) => {
     if (isServer) {
       if (Array.isArray(config.resolve.alias))
@@ -17,7 +30,7 @@ const nextConfig = {
       else config.resolve.alias['msw/node'] = false;
     }
     return config;
-  }
+  },
 };
 
 export default nextConfig;

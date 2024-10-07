@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { validNumberToTime } from '@/utils/validNumberToTime';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { getCookie } from '@/utils/cookie';
 
 const FindEmail = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>(''); // 전화번호
@@ -74,7 +75,7 @@ const FindEmail = () => {
 
   const handleComplete = useCallback(async () => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getCookie('access_token');
       if (token) {
         const data = await getUserEmail(token);
         setAllComplete(true);
@@ -138,7 +139,7 @@ const FindEmail = () => {
   }, [isError]);
 
   return (
-    <div className='find-inner-container flex flex-col items-center min-h-[calc(100vh-220px)] w-[340px]'>
+    <div className='min-h-[calc(100dvh-220px)] flex flex-col items-center justify-between w-[340px] sm:min-h-0 sm:justify-center'>
       {!showUserEmail && (
       <><section className="w-full mx-auto mt-[30px]">
           <div className="text-heading3">
@@ -241,12 +242,12 @@ const FindEmail = () => {
             {isComplete ? (
               <div
                 onClick={handleComplete}
-                className="cursor-pointer flex items-center justify-center px-5 py-3 mt-[60px] w-full rounded-[12px] font-bold text-lg bg-gradient2 text-heading4 text-white"
+                className="cursor-pointer flex items-center justify-center px-5 py-3 w-full rounded-[12px] font-bold text-lg bg-gradient2 text-heading4 text-white  mt-0 sm:mt-[40px]"
               >
                 다음으로
               </div>
             ) : (
-              <div className="flex items-center justify-center px-5 py-3 mt-[60px] w-full rounded-[12px] font-bold text-lg bg-gray100 text-heading4 text-gray400">
+              <div className="flex items-center justify-center px-5 py-3 w-full rounded-[12px] font-bold text-lg bg-gray100 text-heading4 text-gray400  mt-0 sm:mt-[40px]">
                 다음으로
               </div>
             )}
@@ -266,7 +267,7 @@ const FindEmail = () => {
             가입하신<br />
             <span className="text-purple-600">이메일 정보</span>입니다
           </h2>
-          <div className="w-full py-8 px-4 text-center rounded-lg my-10 text-black">{userEmail ? userEmail : 'No email available'}</div>
+          <div className="w-full py-8 px-4 bg-gray-100 text-center rounded-lg my-10 text-black">{userEmail ? userEmail : 'No email available'}</div>
           </section>
         </motion.div>
         <motion.div
@@ -278,7 +279,7 @@ const FindEmail = () => {
           className="w-full mx-auto"
         >
         <Link href={'/sign'}>
-        <button className='flex items-center justify-center px-5 py-3 mt-[60px] w-full rounded-[12px] font-bold text-lg bg-gradient2 text-heading4 text-white'>
+        <button className='flex items-center justify-center px-5 py-3 w-full rounded-[12px] font-bold text-lg bg-gradient2 text-heading4 text-white'>
           로그인으로 돌아가기
         </button>
       </Link>

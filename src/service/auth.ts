@@ -1,7 +1,7 @@
-import { AuthHeaders, NicknameCheckResponse, SendCodeResponse, VerifyCodeResponse } from '@/type/auth';
-import { setToken, removeToken } from '@/utils/localStorage';
+import { AuthHeaders, NicknameCheckResponse, SendCodeResponse, VerifyCodeResponse } from '@/types/auth';
+import { setToken, removeToken, getToken } from '@/utils/localStorage';
 import { useMemberStore } from '@/store/user.store';
-import { axiosInstance, basicAxiosInstance } from './axiosInstance';
+import { axiosInstance, basicAxiosInstance, refreshAxiosInstance } from './axiosInstance';
 
 // 토큰 사용하지 않는 API 함수들
 export const sendVerificationCode = async (phone: string): Promise<SendCodeResponse> => {
@@ -52,7 +52,7 @@ export const finalSignup = async (
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': authHeaders.authorization,
+          'Verify': authHeaders.Verify,
         },
       }
     );
@@ -64,37 +64,49 @@ export const finalSignup = async (
   }
 };
 
-// 토큰 사용하는 API 함수들
-export const login = async (email: string, password: string) => {
+export const login = async (email: string, password: string, rememberMe: boolean) => {
   try {
     const formData = new FormData();
     formData.append('email', email);
     formData.append('password', password);
 
-    const response = await basicAxiosInstance.post('/login', formData, {
+    const url = `/login?rememberMe=${rememberMe}`;
+
+    const response = await basicAxiosInstance.post(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
-    console.log('로그인 성공:', response.data);
+    console.log('로그인 성공 응답 데이터:', response.data);
 
     const token = response.headers['authorization'] || response.headers['Authorization'];
+    if (!token) {
+      throw new Error('토큰을 찾을 수 없습니다. 헤더에서 Authorization이 존재하지 않습니다.');
+    }
+
     const accessToken = token.replace('Bearer ', '');
-    setToken(accessToken);
+    setToken(accessToken);  
+    console.log('Access Token 저장 성공:', accessToken);
 
     const { setMember } = useMemberStore.getState();
     const userInfo = response.data.user;
+    if (!userInfo) {
+      throw new Error('사용자 정보를 응답에서 찾을 수 없습니다.');
+    }
+
     setMember({
       memberEmail: userInfo.email,
       memberNickName: userInfo.nickname,
       memberPhone: userInfo.phonenumber,
-      subscribe: '1개월 플랜', // 임시
+      loginType: userInfo.loginType, 
     });
+
+    console.log('사용자 정보 저장 완료:', userInfo);
 
     return response.data;
   } catch (error) {
-    console.error('로그인 오류:', error);
+    console.error('로그인 오류 발생:', error);
     throw error;
   }
 };
@@ -158,5 +170,46 @@ export const getUserEmail = async (token: string) => {
   } catch (error) {
     console.error('이메일 정보 요청 실패:', error);
     throw error;
+  }
+};
+
+export const refreshAccessToken = async () => {
+  try {
+    const response = await refreshAxiosInstance.post('/token/refresh', null);
+
+    const newToken = response.headers['Authorization'] || response.headers['authorization'];
+    
+    if (newToken) {
+      const accessToken = newToken.replace('Bearer ', '');
+      setToken(accessToken);
+      return accessToken;
+    } else {
+      throw new Error('새로운 액세스 토큰을 받지 못했습니다.');
+    }
+  } catch (error) {
+    console.error('리프레시 토큰 요청 오류:', error);
+    removeToken(); 
+    throw error;
+  }
+};
+
+export const deleteUser = async () => {
+  try {
+    const response = await axiosInstance.delete('/user/Withdrawal');
+
+    if (response.status === 200) {
+      console.log(response.data.message);
+      removeToken();
+
+      const { clearMember } = useMemberStore.getState();
+      clearMember();
+      return response;  
+    } else {
+      console.error('회원탈퇴 실패', response.status);
+      return response; 
+    }
+  } catch (error) {
+    console.error('회원탈퇴 오류:', error);
+    throw error; 
   }
 };

@@ -1,12 +1,11 @@
 import { AuthHeaders, NicknameCheckResponse, SendCodeResponse, VerifyCodeResponse } from '@/types/auth';
-import { setToken, removeToken, getToken } from '@/utils/localStorage';
+import { setToken, removeToken, getToken, setVerifyToken } from '@/utils/localStorage';
 import { useMemberStore } from '@/store/user.store';
 import { axiosInstance, basicAxiosInstance, refreshAxiosInstance } from './axiosInstance';
 
 // 토큰 사용하지 않는 API 함수들
 export const sendVerificationCode = async (phone: string): Promise<SendCodeResponse> => {
   const response = await basicAxiosInstance.post('/signup/send/code', { phone });
-  console.log(response.data);
   return response.data;
 };
 
@@ -17,9 +16,7 @@ export const verifyCode = async (phone: string, code: string): Promise<VerifyCod
     code
    });
 
-  console.log('응답 데이터:', response.data);
   const token = response.headers['Verify'] || response.headers['verify'];
-  console.log('응답 토큰', token);
   setToken(token);
 
   return response.data;
@@ -29,7 +26,6 @@ export const checkNicknameAvailability = async (nickname: string): Promise<Nickn
   try {
     const response = await basicAxiosInstance.post('/signup/verify/nickname', { nickname });
     if (response.status === 200) {
-      console.log('응답 성공:', response);  
       return response.data;
     } else {
       console.error('서버 오류 응답 상태:', response.status);
@@ -56,7 +52,6 @@ export const finalSignup = async (
         },
       }
     );
-    console.log('서버 응답 데이터:', response.data);
     return response.data;
   } catch (error) {
     console.error('서버 요청 오류:', error);
@@ -78,8 +73,6 @@ export const login = async (email: string, password: string, rememberMe: boolean
       },
     });
 
-    console.log('로그인 성공 응답 데이터:', response.data);
-
     const token = response.headers['authorization'] || response.headers['Authorization'];
     if (!token) {
       throw new Error('토큰을 찾을 수 없습니다. 헤더에서 Authorization이 존재하지 않습니다.');
@@ -87,7 +80,6 @@ export const login = async (email: string, password: string, rememberMe: boolean
 
     const accessToken = token.replace('Bearer ', '');
     setToken(accessToken);  
-    console.log('Access Token 저장 성공:', accessToken);
 
     const { setMember } = useMemberStore.getState();
     const userInfo = response.data.user;
@@ -100,9 +92,8 @@ export const login = async (email: string, password: string, rememberMe: boolean
       memberNickName: userInfo.nickname,
       memberPhone: userInfo.phonenumber,
       loginType: userInfo.loginType, 
+      marketing: userInfo.marketing || 0,
     });
-
-    console.log('사용자 정보 저장 완료:', userInfo);
 
     return response.data;
   } catch (error) {
@@ -116,7 +107,6 @@ export const logout = async () => {
     const response = await axiosInstance.post('/logout', {});
 
     if (response.status === 200) {
-      console.log(response.data.message);
       removeToken();
 
       const { clearMember } = useMemberStore.getState();
@@ -132,7 +122,6 @@ export const logout = async () => {
 export const sendEmail = async (email: string) => {
   try {
     const response = await basicAxiosInstance.post(`/user/send/mail?email=${email}`);
-    console.log('이메일 전송 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('이메일 전송 실패:', error);
@@ -146,16 +135,34 @@ export const verifyEmailCode = async (email: string, code: string) => {
       email,
       code
     });
-    console.log('인증 완료:', response.data);
 
     const token = response.headers['Verify'] || response.headers['verify'];
-    console.log('응답 토큰', token);
-    setToken(token);
+    setVerifyToken(token);
 
     return response.data;
   } catch (error) {
     console.error('인증 실패:', error);
     throw error;
+  }
+};
+
+export const verifyEmail = async (email: string) => {
+  try {
+    const response = await basicAxiosInstance.post('/signup/verify/email', { email });
+
+    if (response.status === 200) {
+      return { success: true, message: '중복된 이메일이 없습니다.' }; 
+    } else {
+      console.error('서버 오류 응답 상태:', response.status);
+      return { success: false, message: '서버 오류가 발생했습니다.' }; 
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 400) {
+      return { success: false, message: '중복된 이메일이 있습니다.' }; 
+    } else {
+      console.error('API 호출 오류:', error);
+      return { success: false, message: 'API 호출 중 오류가 발생했습니다.' }; 
+    }
   }
 };
 
@@ -198,7 +205,6 @@ export const deleteUser = async () => {
     const response = await axiosInstance.delete('/user/Withdrawal');
 
     if (response.status === 200) {
-      console.log(response.data.message);
       removeToken();
 
       const { clearMember } = useMemberStore.getState();

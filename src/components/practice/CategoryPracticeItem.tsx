@@ -1,17 +1,14 @@
 import type { StudyGuidesItem, SubLoadmap } from '@/types/homeComponentsType';
 import React from 'react';
-import { useRouter } from 'next/navigation'; 
 
 const CategoryPracticeItem = ({ id, title, link }: StudyGuidesItem) => {
-  const router = useRouter(); 
 
   const handleClick = () => {
-    console.log(link);
     window.open(link, '_blank');
   };
 
   return (
-    <div className='pt-5'>
+    <div className='pb-5'>
       <div className="flex gap-5 items-center cursor-pointer rounded-xl shadow border border-[#eceef2] px-5 py-6" onClick={handleClick}>
         <div className="flex-1 flex">
           <div className="text-gray600 text-body5 sm:text-title1">{title}</div>

@@ -11,21 +11,27 @@ const MainReport = () => {
   const { mainReport, isLoading } = getReportIssues();
   const router = useRouter();
 
+  
+
+  const handleGuideClick = () => {
+    window.open('https://contents.premium.naver.com/vestpie/pieceofmoney', '_blank');
+  };
+
   return (
     <div className="">
       {/* 타이틀 */}
       <div className="flex items-center justify-between">
-        <div className="text-heading4">주요 리포트</div>
+        <div className="text-heading4">실력 올리기</div>
         <div
           onClick={() => {
-            router.push('/reportpage');
+            router.push('/practicepage');
           }}
           className="cursor-pointer">
           <img src="/images/home/item_right.svg" alt="" />
         </div>
       </div>
       {/* 캐러셀 이미지 */}
-      <div className="hidden mt-[26px] sm:block">
+      <div className="hidden mt-[26px] sm:block cursor-pointer" onClick={handleGuideClick}>
         <img src="/images/home/report_main.svg" alt="" />
       </div>
       <div className="mt-5 sm:hidden mx-auto rounded-[12px] h-[130px] w-full bg-cover bg-[url('/images/home/report_layout.svg')]">
@@ -55,6 +61,7 @@ const MainReport = () => {
               id={item.id}
               imageLink={item.imageLink}
               description={item.description}
+              link={item.link}
             />
           ))
         )}

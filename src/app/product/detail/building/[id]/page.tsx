@@ -13,6 +13,8 @@ import { getBuildingProductDetail } from '@/factory/ProductDetail/BuildingProduc
 import { CATEGORY } from '@/static/category';
 import Link from 'next/link';
 import { useAddBookMark, useDeleteBookMark } from '@/factory/BookMark';
+import { useAuthStore } from '@/store/userAuth.store';
+import '../../../../plugin';
 const BuildingDetailpage = (props: any) => {
   const [sort, setSort] = useState('profit');
   const url = props.params.id;
@@ -27,19 +29,29 @@ const BuildingDetailpage = (props: any) => {
   const addmutation = useAddBookMark();
   const deletemutation = useDeleteBookMark();
 
+  const { isLoggedIn } = useAuthStore();
   const handleBookmarkClick = (
     productId: string | undefined,
     bookmark: boolean | undefined
   ) => {
     // 낙관적 업데이트를 위해 로컬 상태를 먼저 변경합니다.
-    setLocalData((prevData) =>
-      prevData ? { ...prevData, bookmark: !prevData.bookmark } : prevData
-    );
+    if (isLoggedIn) {
+      setLocalData((prevData) =>
+        prevData ? { ...prevData, bookmark: !prevData.bookmark } : prevData
+      );
 
-    if (!bookmark) {
-      addmutation.mutate({ productId, bookmark });
-    } else if (bookmark) {
-      deletemutation.mutate({ productId });
+      if (!bookmark) {
+        addmutation.mutate({ productId, bookmark });
+        alert('북마크 추가가 완료되었습니다');
+        window.location.reload();
+      } else if (bookmark) {
+        deletemutation.mutate({ productId });
+        alert('북마크 삭제가 완료되었습니다');
+        window.location.reload();
+      }
+    } else {
+      alert('로그인이 필요한 서비스입니다.');
+      window.location.href = '/sign';
     }
   };
   return (
@@ -52,6 +64,7 @@ const BuildingDetailpage = (props: any) => {
               width={181}
               height={181}
               alt="Profile Image"
+              className="object-cover w-[181px] h-[181px] rounded-[8px] "
             />
 
             <div className="desk:hidden  desk2:flex flex-col ml-[28px] ">
@@ -207,7 +220,11 @@ const BuildingDetailpage = (props: any) => {
       ) : sort === 'profit' ? (
         <BuildingProfit url={url} />
       ) : sort === 'detail' ? (
-        <BuildingProductDetail url={url} rentType={data?.rentType} />
+        <BuildingProductDetail
+          url={url}
+          rentType={data?.rentType}
+          stayType={data?.stayType}
+        />
       ) : undefined}
     </div>
   );

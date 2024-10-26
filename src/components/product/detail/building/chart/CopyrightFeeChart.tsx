@@ -1,33 +1,9 @@
 import React, { useState } from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'react-chartjs-2';
 import { usePathname } from 'next/navigation';
 import axios from 'axios';
 import { IMusicCopyRightFeeChart } from '@/types/MusicProductType';
 import { useQuery } from '@tanstack/react-query';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
 
 const BuildingCopyRightFeeChart = () => {
   const pathname = usePathname();
@@ -51,25 +27,25 @@ const BuildingCopyRightFeeChart = () => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['BuildingRightFeeChart', filteringData],
+    queryKey: ['BuildingRightFeeChart', filteringData, lastSegment],
     queryFn: fetchData
   });
 
   const paymentDate =
     (CopyRightFeeData?.divide &&
-      CopyRightFeeData?.divide.map((item) => item.paymentDate)) ||
+      CopyRightFeeData?.divide?.map((item) => item.paymentDate)) ||
     [];
 
   const CopyRightFeeDivideCount =
     (CopyRightFeeData?.divide &&
-      CopyRightFeeData?.divide.map((item) => Number(item.divide))) ||
+      CopyRightFeeData?.divide?.map((item) => Number(item.divide))) ||
     [];
   const sortedCopyRightFeeDivideCount = [...CopyRightFeeDivideCount].sort(
     (a, b) => b - a
   );
   const maxCopyRightFeeDivideCount = sortedCopyRightFeeDivideCount[0] || 0;
   const averageCopyRightFeeDivideCount =
-    CopyRightFeeDivideCount.reduce((acc, val) => acc + val, 0) /
+    CopyRightFeeDivideCount?.reduce((acc, val) => acc + val, 0) /
       CopyRightFeeDivideCount.length || 0;
 
   const BarnewVariable =
@@ -77,20 +53,19 @@ const BuildingCopyRightFeeChart = () => {
 
   const CopyRightFeeDivideRateCount =
     (CopyRightFeeData?.divide &&
-      CopyRightFeeData?.divide.map((item) => Number(item.divide))) ||
+      CopyRightFeeData?.divide?.map((item) => Number(item.divide_rate))) ||
     [];
+
   const sortedCopyRightFeeDivideRateCount = [...CopyRightFeeDivideRateCount].sort(
     (a, b) => b - a
   );
   const maxCopyRightFeeDivideRateCount = sortedCopyRightFeeDivideRateCount[0] || 0;
   const averageCopyRightFeeDivideRateCount =
-    CopyRightFeeDivideRateCount.reduce((acc, val) => acc + val, 0) /
+    CopyRightFeeDivideRateCount?.reduce((acc, val) => acc + val, 0) /
       CopyRightFeeDivideRateCount.length || 0;
 
-  const LinenewVariable = Math.floor(
-    maxCopyRightFeeDivideRateCount + averageCopyRightFeeDivideRateCount
-  );
-
+  const LinenewVariable =
+    maxCopyRightFeeDivideRateCount + averageCopyRightFeeDivideRateCount;
   const data = {
     labels: paymentDate,
     datasets: [

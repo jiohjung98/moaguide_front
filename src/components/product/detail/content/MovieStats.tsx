@@ -9,20 +9,29 @@ const MovieStats = () => {
 
   const fetchData = async () => {
     const response = await axios.get<IContentMovieStats>(
-      `https://api.moaguide.com/detail/contents/sub/${lastSegment}`
+      `https://api.moaguide.com/detail/content/sub/${lastSegment}`
     );
     return response.data;
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['MovieStats'],
+    queryKey: ['MovieStats', lastSegment],
     queryFn: fetchData
   });
 
+  const formatNumber = (num: number | undefined): string | undefined => {
+    if (num && num >= 100000000) {
+      return `약 ${(num / 100000000).toFixed(1)}억`;
+    } else if (num && num >= 10000) {
+      return `약 ${(num / 10000).toFixed(1)}만`;
+    }
+    return String(num);
+  };
+
   return (
     <div>
-      {data?.stats[0].region}
-      <div className="text-gray-400 mb-[10px]"> 주요 업무 지구</div>
+      {/* {data?.stats[0].region} */}
+      {/* <div className="text-gray-400 mb-[10px]"> 주요 업무 지구</div> */}
 
       <div className="bg-gray-50 rounded-xl flex flex-col  desk:pl-[10px] md:pl-[0px] ">
         <div className="grid grid-cols-4 gap-x-4 mb-[40px] mt-[20px] text-center">
@@ -35,24 +44,40 @@ const MovieStats = () => {
         <div className="grid grid-cols-4 gap-x-4 mb-[40px]">
           <div className="text-base flex justify-center">서울시</div>
           <div className="text-blue-500 text-center"> {data?.stats[0].screenCount}</div>
-          <div className="text-blue-500 text-center">
+          <div className="text-blue-500 text-center desk:hidden md:block">
             {data?.stats[0].totalRevenue.toLocaleString()}({data?.stats[0].revenueShare}%)
           </div>
-          <div className="text-blue-500 text-center">
+          <div className="text-blue-500 text-center desk:hidden md:block">
             {data?.stats[0].totalAudience.toLocaleString()}({data?.stats[0].audienceShare}
             %)
+          </div>
+
+          {/* 반응형일 때 억/ 만 단위로 */}
+          <div className="text-blue-500 text-center desk:block md:hidden">
+            {formatNumber(data?.stats[0].totalRevenue)}
+          </div>
+          <div className="text-blue-500 text-center desk:block md:hidden">
+            {formatNumber(data?.stats[0].totalAudience)}
           </div>
         </div>
 
         <div className="grid grid-cols-4 gap-x-4 mb-[40px]">
           <div className="text-base flex justify-center">전국</div>
           <div className="text-blue-500 text-center"> {data?.stats[1].screenCount}</div>
-          <div className="text-blue-500 text-center">
+          <div className="text-blue-500 text-center desk:hidden md:block">
             {data?.stats[1].totalRevenue.toLocaleString()}({data?.stats[0].revenueShare}%)
           </div>
-          <div className="text-blue-500 text-center">
+          <div className="text-blue-500 text-center desk:hidden md:block">
             {data?.stats[1].totalAudience.toLocaleString()}({data?.stats[0].audienceShare}
             %)
+          </div>
+
+          {/* 반응형일 때 억/ 만 단위로 */}
+          <div className="text-blue-500 text-center desk:block md:hidden">
+            {formatNumber(data?.stats[1].totalRevenue)}
+          </div>
+          <div className="text-blue-500 text-center desk:block md:hidden">
+            {formatNumber(data?.stats[1].totalAudience)}
           </div>
         </div>
       </div>

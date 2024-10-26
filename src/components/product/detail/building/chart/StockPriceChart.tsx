@@ -1,35 +1,15 @@
 import React, { useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import { IMusicBulidingStockPriceChart } from '@/types/MusicProductType';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
 const BuildingStockPriceChart = () => {
   const chartRef = useRef(null);
   const pathname = usePathname();
   const lastSegment = pathname.split('/').pop();
-  const [filteringData, setFilteringData] = useState('100');
+  const [filteringData, setFilteringData] = useState('3');
 
   const fetchData = async () => {
     try {
@@ -48,18 +28,18 @@ const BuildingStockPriceChart = () => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['BuildingStockPriceChart', filteringData],
+    queryKey: ['BuildingStockPriceChart', filteringData, lastSegment],
     queryFn: fetchData
   });
 
   const StockPriceDate =
     (StockPriceData?.transaction &&
-      StockPriceData?.transaction.map((item) => item.day).reverse()) ||
+      StockPriceData?.transaction?.map((item) => item.day).reverse()) ||
     [];
 
   const StockPriceCount =
     (StockPriceData?.transaction &&
-      StockPriceData?.transaction.map((item) => Number(item.value)).reverse()) ||
+      StockPriceData?.transaction?.map((item) => Number(item.value)).reverse()) ||
     [];
   const sortedStockPriceCount = [...StockPriceCount].sort((a, b) => b - a);
   const maxStockPriceCount = sortedStockPriceCount[0] || 0;

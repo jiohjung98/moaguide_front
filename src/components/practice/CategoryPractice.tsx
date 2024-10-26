@@ -20,7 +20,7 @@ const CategoryPractice = () => {
       : getArticles(); 
 
   useEffect(() => {
-    if (subCategory === 'guide' && !guideLoaded) {
+    if (subCategory === 'guide' && !guideLoaded && isLoading) {
       setShowSkeleton(true);
       const timer = setTimeout(() => {
         setShowSkeleton(false);
@@ -29,17 +29,19 @@ const CategoryPractice = () => {
       return () => clearTimeout(timer);
     }
 
-    if (subCategory === 'article' && !articleLoaded) {
+    if (subCategory === 'article' && !articleLoaded && isLoading) {
       setShowSkeleton(true);
       const timer = setTimeout(() => {
         setShowSkeleton(false);
-        setArticleLoaded(true);  
+        setArticleLoaded(true); 
       }, 1000);
       return () => clearTimeout(timer);
     }
 
-    setShowSkeleton(false);
-  }, [subCategory, guideLoaded, articleLoaded]);
+    if (!isLoading) {
+      setShowSkeleton(false);
+    }
+  }, [subCategory, guideLoaded, articleLoaded, isLoading]);
 
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetching && !isFetchingNextPage && !isLoading) {
@@ -52,72 +54,85 @@ const CategoryPractice = () => {
   const allPosts = data || [];
 
   return (
-    <div className="mt-0 sm:mt-5">
-      <div className="mt-6 sm:mt-8 flex items-center gap-5 border-b border-gray100 text-body5 sm:text-title2">
+    <div className="mt-5 sm:mt-0">
+      <div className="flex items-center gap-5 border-b border-gray100 text-body5 sm:text-title2 mb-5">
         <div 
           onClick={() => setSubCategory('guide')} 
-          className={`pb-5 cursor-pointer ${subCategory === 'guide' ? ' text-gray700 border-b-2 border-normal ' : 'text-gray300'}`}
+          className={`pb-4 cursor-pointer ${subCategory === 'guide' ? ' text-gray700 border-b-2 border-normal ' : 'text-gray300'}`}
         >
           조각투자 가이드
         </div>
         <div 
           onClick={() => setSubCategory('article')} 
-          className={`pb-5 cursor-pointer ${subCategory === 'article' ? ' text-gray700 border-b-2 border-normal ' : 'text-gray300'}`}
+          className={`pb-4 cursor-pointer ${subCategory === 'article' ? ' text-gray700 border-b-2 border-normal ' : 'text-gray300'}`}
         >
           재테크 가이드
         </div>
       </div>
 
       <div>
-        {showSkeleton || isLoading ? ( 
+        {showSkeleton && isLoading ? (
           subCategory === 'guide' ? (
-            Array.from({ length: 6 }).map((_, i) => <CategoryPracticeItemSkeleton key={i} />) 
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="skeleton-item">
+                <CategoryPracticeItemSkeleton />
+              </div>
+            ))
           ) : (
-            Array.from({ length: 10 }).map((_, i) => <SubLoadmapBottomArticleSkeleton key={i} />)
+            Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="skeleton-item">
+                <SubLoadmapBottomArticleSkeleton />
+              </div>
+            ))
           )
         ) : (
           <Virtuoso
-            style={{ height: 'calc(100vh - 50px)', margin: '0px' }}
-            useWindowScroll
-            totalCount={allPosts.length}
-            data={allPosts}
-            endReached={loadMore}
-            itemContent={(index, item) => {
-              if (subCategory === 'guide') {
-                return <CategoryPracticeItem key={item.id} {...item} />;
-              } else {
-                const firstItem = allPosts[index * 2];
-                const secondItem = allPosts[index * 2 + 1];
-
-                return (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 sm:gap-8 w-full">
-                    {firstItem && (
-                      <CategorySubloadmapBottomArticle
-                        key={firstItem.id}
-                        id={firstItem.id}
-                        title={firstItem.title}
-                        description={firstItem.description}
-                        imageLink={firstItem.imageLink}
-                        date={firstItem.date}
-                        link={firstItem.link}
-                      />
-                    )}
-                    {secondItem && (
-                      <CategorySubloadmapBottomArticle
-                        key={secondItem.id}
-                        id={secondItem.id}
-                        title={secondItem.title}
-                        description={secondItem.description}
-                        imageLink={secondItem.imageLink}
-                        date={secondItem.date}
-                        link={secondItem.link}
-                      />
-                    )}
-                  </div>
-                );
-              }
-            }}
-          />
+          style={{ minHeight: '200px', height: '100vh', margin: '0px' }}
+          useWindowScroll
+          totalCount={allPosts.length}
+          data={allPosts}
+          endReached={loadMore}
+          itemContent={(index, item) => {
+            if (!item) {
+              // Zero-sized element 에러 해결 방법: 아이템이 없을 경우 1px 높이 적용
+              return <div style={{ height: '1px', overflow: 'hidden' }}></div>;
+            }
+        
+            if (subCategory === 'guide') {
+              return <CategoryPracticeItem key={item.id} {...item} />;
+            } else {
+              const firstItem = allPosts[index * 2];
+              const secondItem = allPosts[index * 2 + 1];
+        
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 sm:gap-8 w-full">
+                  {firstItem ? (
+                    <CategorySubloadmapBottomArticle
+                      key={firstItem.id}
+                      id={firstItem.id}
+                      title={firstItem.title}
+                      description={firstItem.description}
+                      imageLink={firstItem.imageLink}
+                      date={firstItem.date}
+                      link={firstItem.link}
+                    />
+                  ) : <div style={{ height: '1px', overflow: 'hidden' }}></div>}
+                  {secondItem ? (
+                    <CategorySubloadmapBottomArticle
+                      key={secondItem.id}
+                      id={secondItem.id}
+                      title={secondItem.title}
+                      description={secondItem.description}
+                      imageLink={secondItem.imageLink}
+                      date={secondItem.date}
+                      link={secondItem.link}
+                    />
+                  ) : <div style={{ height: '1px', overflow: 'hidden' }}></div>}
+                </div>
+              );
+            }
+          }}
+        />
         )}
       </div>
     </div>

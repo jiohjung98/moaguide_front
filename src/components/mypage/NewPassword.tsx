@@ -43,12 +43,12 @@ const NewPassword = ({ setStep }: NewPasswordType) => {
       if (result === 'success') {
         setStep(2); 
       } else {
-        alert('비밀번호 변경 실패');
+        alert('비밀번호 변경 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         setStep(0);
       }
     } catch (error) {
       console.error('비밀번호 변경 오류:', error);
-      alert('비밀번호 변경 중 오류가 발생했습니다.');
+      alert('비밀번호 변경 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setStep(0);
     } finally {
       setIsSubmitting(false); 
@@ -67,14 +67,14 @@ const NewPassword = ({ setStep }: NewPasswordType) => {
       <div className="flex flex-col gap-2 mt-10">
         <div className="text-body3">새 비밀번호</div>
         <input
-          value={newPassword}
-          onChange={handleNewPassword}
-          type="password"
-          placeholder="비밀번호 입력"
-          className={`px-4 py-[14px] bg-bg text-body2 rounded-[12px] w-full outline-none
-          ${isValid && 'outline-success'}
-          `}
-        />
+            value={newPassword}
+            onChange={handleNewPassword}
+            type="password"
+            placeholder="비밀번호 입력"
+            className={`px-4 py-[14px] bg-bg text-body2 rounded-[12px] w-full outline-none 
+            ${isValid ? 'outline-success' : 'focus:outline-normal'}
+            `}
+          />
         {isValid ? (
           <div className="text-caption3 text-success ml-2">
             사용 가능한 비밀번호입니다.
@@ -93,7 +93,7 @@ const NewPassword = ({ setStep }: NewPasswordType) => {
           type="password"
           placeholder="비밀번호 입력"
           className={`px-4 py-[14px] bg-bg text-body2 rounded-[12px] w-full outline-none
-          ${isSame && 'outline-success'}
+          ${isSame ? 'outline-success' : 'focus:outline-normal'}
           `}
         />
         <div className='h-[14.5px]'>

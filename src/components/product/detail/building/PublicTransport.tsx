@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 interface NearSubway {
   station: string;
-  route: string;
+  route: string[];
   distance: number;
   time: number;
+}
+
+interface NearBus {
+  node: string;
 }
 
 interface PublicTransportData {
@@ -25,8 +29,9 @@ interface PublicTransportData {
   ybdCar: string;
   ybdSubway: string;
   nearSubway: NearSubway[];
-  busLine: number;
-  busNode: number;
+  line: string;
+  node: string;
+  nearBus: NearBus[];
 }
 
 const stationImageMap: { [key: string]: string } = {
@@ -40,27 +45,39 @@ const stationImageMap: { [key: string]: string } = {
   '8호선': '/images/product/detail/subway8.svg',
   '9호선': '/images/product/detail/subway9.svg',
   분당선: '/images/product/detail/subwaybundang.svg',
-  경의중앙선: '/images/product/detail/subwaygyeonghye.svg'
+  경의중앙선: '/images/product/detail/subwaygyeonghye.svg',
+  신분당선: '/images/product/detail/subwaysinbundang.svg',
+  수인분당선: '/images/product/detail/subwaysuinbundang.svg',
+  부산1호선: '/images/product/detail/subwaybusan1.svg',
+  부산2호선: '/images/product/detail/subwaybusan2.svg',
+  부산3호선: '/images/product/detail/subwaybusan3.svg',
+  부산4호선: '/images/product/detail/subwaybusan4.svg'
 };
 
 const PublicTransport = () => {
   const pathname = usePathname();
   const lastSegment = pathname.split('/').pop(); // 경로의 마지막 부분 추출
+
+  const [Ismodal, setIsModal] = useState(false);
   const fetchData = async () => {
-    const response = await axios.get(
-      `https://api.moaguide.com/detail/building/sub/${lastSegment}`
-    );
-    return response.data;
+    try {
+      const response = await axios.get(
+        `https://api.moaguide.com/detail/building/sub/${lastSegment}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   const { data, isLoading, error } = useQuery<PublicTransportData>({
-    queryKey: ['PublicTransport'],
+    queryKey: ['PublicTransport', lastSegment],
     queryFn: fetchData
   });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error fetching data</div>;
-
+  console.log(data);
   return (
     <div>
       <div className="text-gray-400 mb-[10px]"> 주요 업무 지구</div>
@@ -70,7 +87,7 @@ const PublicTransport = () => {
           <div className="text-gray-500 text-left"></div>
           <div className="text-gray-500">가까운 역까지</div>
           <div className="text-gray-500">차량으로</div>
-          <div className="text-gray-500">대중교통으로</div>
+          <div className="text-gray-500">지하철로</div>
         </div>
 
         <div className="grid grid-cols-4 gap-x-4 mb-[40px]">
@@ -95,43 +112,57 @@ const PublicTransport = () => {
         </div>
       </div>
 
-      <div className="text-gray-400 mb-[10px]">0.5km 이내 대중교통</div>
+      <div className="text-gray-400 mb-[10px]">대중교통</div>
 
-      <div className="flex max-w-[1000px] w-full mx-auto h-auto">
-        <div className="bg-gray-50 rounded-xl mr-[20px] flex flex-col w-[calc(50%-10px)] p-[20px] ">
-          <div className="text-base font-bold">주변 지하철</div>
-          {data?.nearSubway.map((subway, index) => (
-            <div key={index} className="flex justify-between mt-2">
-              <div className="flex items-center">
-                <div className="mr-1">
-                  <Image
-                    src={stationImageMap[subway.route]}
-                    alt={`이미지`}
-                    width={20}
-                    height={20}
-                  />
+      <div className="flex desk2:flex-row desk:flex-col max-w-[1000px] w-full mx-auto h-auto">
+        <div className="bg-gray-50 rounded-xl mr-[20px] flex flex-col desk:w-full desk2:w-[calc(50%-10px)] p-[20px] ">
+          <div className="text-base font-bold">1km 이내 주변 지하철</div>
+          {data &&
+            data?.nearSubway?.map((subway, index) => {
+              return (
+                <div key={index} className="flex  justify-between mt-2">
+                  <div className="flex justify-start items-center ">
+                    <div className="mr-1 flex-1">
+                      <div className="flex">
+                        {subway.route.map((route, index) => (
+                          <Image
+                            src={`https://d2qf2amuam62ps.cloudfront.net/img/${route}.svg`}
+                            alt={`이미지`}
+                            width={20}
+                            height={20}
+                            key={index}
+                            className="mr-1"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="">{subway.station}</div>
+                  </div>
+                  <div className="flex desk2:flex desk:hidden">
+                    <div className="mr-[30px]  ">{subway.distance}m</div>
+                    <div>{subway.time}분</div>
+                  </div>
                 </div>
-                <div>{subway.route}</div>
-              </div>
-              <div className="flex">
-                <div className="mr-[30px]">{subway.distance}m</div>
-                <div>{subway.time}분</div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
         </div>
 
-        <div className="bg-gray-50 rounded-xl w-[calc(50%-10px)] p-[20px]">
-          <div className="text-base font-bold">주변 버스정류장</div>
-          <div className="flex justify-between mt-2">
-            <div>정류장이름</div>
-          </div>
-          <div className="flex">
-            <div className="mr-[20px] bg-gray-300  rounded-md  w-full max-w-[30px] flex justify-center items-center ">
-              {data?.busLine}
-            </div>
-            <div className=" bg-gray-300  rounded-md w-full  max-w-[30px] flex justify-center items-center">
-              {data?.busNode}
+        <div className="bg-gray-50 rounded-xl desk:w-full desk2:w-[calc(50%-10px)] p-[20px] desk:mt-5 desk2:mt-0">
+          <div className="text-base font-bold">0.5km이내 주변 버스</div>
+          <div className=" ">
+            <div
+              className="grid grid-cols-4  gap-3 "
+              onClick={() => setIsModal(!Ismodal)}>
+              {data?.nearBus.map((item, index) => {
+                return (
+                  <div key={index} className="flex ">
+                    <div className=" w-full bg-gray-200 text-xs rounded-md flex justify-center items-center p-2 ">
+                      {item.node}
+                    </div>
+                  </div>
+                );
+              })}
+              {/* {Ismodal ? <Busmodal /> : null} */}
             </div>
           </div>
         </div>
@@ -141,3 +172,14 @@ const PublicTransport = () => {
 };
 
 export default PublicTransport;
+
+const Busmodal = () => {
+  return (
+    <div className=" bg-blue-200 w-[90px] h-[40px] absolute top-10 left-0 flex justify-center items-center rounded-[8px] ">
+      <div className="relative">
+        2000버스
+        <div className="absolute bottom-8 left-0 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-b-blue-200"></div>
+      </div>
+    </div>
+  );
+};

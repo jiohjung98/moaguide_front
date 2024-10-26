@@ -1,28 +1,9 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
 import { usePathname } from 'next/navigation';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
+import { TooltipItem } from 'chart.js';
 
 const PopulationInformationChart = () => {
   const pathname = usePathname();
@@ -30,7 +11,7 @@ const PopulationInformationChart = () => {
 
   const fetchData = async () => {
     const response = await axios.get(
-      `https://api.moaguide.com/detail/building/population/${lastSegment}?year=2023&month=12`
+      `https://api.moaguide.com/detail/building/population/${lastSegment}`
     );
     return response.data;
   };
@@ -63,7 +44,19 @@ const PopulationInformationChart = () => {
       },
       tooltip: {
         enabled: true,
-        intersect: false
+        intersect: false,
+        callbacks: {
+          label: function (context: TooltipItem<'bar'>) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += context.parsed.y.toLocaleString() + '명';
+            }
+            return label;
+          }
+        }
       },
       datalabels: {
         anchor: 'end' as const,
@@ -71,6 +64,9 @@ const PopulationInformationChart = () => {
         color: 'black',
         font: {
           weight: 'bold' as const
+        },
+        formatter: function (value: number) {
+          return value.toLocaleString(); // 차트 바 데이터 위에 표시되는 숫자를 포맷팅
         }
       }
     },
@@ -85,11 +81,13 @@ const PopulationInformationChart = () => {
         display: true,
         beginAtZero: true,
         max: Math.max(...populationData) * 1.5, // y축의 최대값 설정
+
         grid: {
           display: false // y축의 그리드를 숨김
         },
         ticks: {
           display: false, //y축 삭제
+
           stepSize: 1000 // y축의 눈금 간격 설정
         }
       }
@@ -102,9 +100,13 @@ const PopulationInformationChart = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-gray-50 mb-[100px]">
-      <div className="w-full max-w-4xl h-[400px]">
-        <Bar data={Chartdata} options={options} />
+    <div>
+      <div className="text-base  text-gray-400  mb-2">상품 주소의 행정동 인구정보</div>
+
+      <div className="flex flex-col items-center justify-center h-full bg-gray-50 mb-[100px]">
+        <div className="w-full max-w-4xl h-[400px]">
+          <Bar data={Chartdata} options={options} />
+        </div>
       </div>
     </div>
   );

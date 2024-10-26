@@ -11,6 +11,7 @@ export interface INewsItem {
   category: string;
   link: string;
   date: string;
+  imgUrl: string;
 }
 
 export interface IreportItem {
@@ -36,6 +37,7 @@ export interface IBuildingProductDetail {
   link: string;
   rentType: boolean;
   bookmark: boolean;
+  stayType: boolean;
 }
 
 export interface IBuildingProductProfitDetail {
@@ -51,6 +53,7 @@ export interface IBuildingProductProfitDetail {
     listingDate: string;
   };
   buildingDetail: {
+    name: string;
     productId: string | null;
     address: string;
     useArea: string;
@@ -97,4 +100,44 @@ export interface IProductType extends IBuildingProductDetail {
   notices: INoticeItem[];
   news: INewsItem[];
   reports: IreportItem[];
+}
+
+export interface ISubwayDayItem {
+  day: string;
+  boarding: number;
+  alighting: number;
+}
+
+export interface ISubwayMonthItem {
+  day: string;
+  boarding: number;
+  alighting: number;
+}
+
+export interface ISubwayData {
+  subwayDay: ISubwayDayItem[];
+  subwayMonth: ISubwayMonthItem[];
+}
+
+export interface ISaydayItem {
+  day: string;
+  noday: number;
+  oneday: number;
+  twoday: number;
+  threeday: number;
+  total: number;
+}
+
+export interface IStayDayData {
+  object: ISaydayItem[];
+}
+
+export interface IStayRateItem {
+  day: string;
+  rate: number;
+  value: number;
+}
+
+export interface IStayRateData {
+  object: IStayRateItem[];
 }

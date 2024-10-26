@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { checkNicknameAvailability } from '@/service/auth';
 import { formatBirthDate } from '@/utils/dateUtils';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface StepProps {
   onNext: () => void;
@@ -93,8 +94,6 @@ const Step4: React.FC<StepProps> = ({ onNext, onUpdate }) => {
     if (isFormValid) {
       try {
         await onNext();
-        console.log('가입성공');
-        router.push('/sign');
       } catch (error) {
         console.error('가입 처리 중 오류 발생:', error);
       }
@@ -102,8 +101,13 @@ const Step4: React.FC<StepProps> = ({ onNext, onUpdate }) => {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-100px)] flex flex-col items-center justify-between mb-[100px] sm:min-h-[100vh] sm:justify-center sm:mb-0">
-      <div className="max-w-[340px] w-full mx-auto mt-[30px] sm:mt-0">
+    <div className="min-h-[calc(100dvh-75.5px)] flex flex-col items-center justify-between sm:min-h-[100vh] sm:justify-center">
+      <div className="w-[90%] sm:max-w-[340px] sm:w-full mx-auto mt-[30px] sm:mt-0">
+      {/* <section className="hidden sm:flex mt-8 mb-6 sm:items-center sm:justify-center">
+        <Link href={'/'} className='cursor-pointer'>
+          <img src="/images/logo.svg" alt="logo" className="w-[202px] h-[28px] items-center justify-center" />
+        </Link>
+      </section> */}
         <Image
           src={'/sign/LeftArrowIcon.svg'}
           alt='뒤로가기'
@@ -142,10 +146,10 @@ const Step4: React.FC<StepProps> = ({ onNext, onUpdate }) => {
           </div>
           <div className="min-h-8 flex items-center">
             {isNicknameValid === true && (
-              <p className="text-blue-500 text-xs">사용 가능한 닉네임입니다.</p>
+              <p className="text-xs text-success">사용 가능한 닉네임입니다.</p>
             )}
             {isNicknameValid === false && (
-              <p className="text-red-500 text-xs">이미 사용중인 닉네임입니다.</p>
+              <p className="text-xs text-error">이미 사용중인 닉네임입니다.</p>
             )}
             </div>
           </div>
@@ -190,7 +194,7 @@ const Step4: React.FC<StepProps> = ({ onNext, onUpdate }) => {
         </div>
 
         {investmentExperience === 'yes' && (
-          <div className="mb-8">
+          <div className="mb-8 sm:mb-0">
             <div className="text-body3">투자 경력 (N년)</div>
             <div className='flex justify-end items-center mt-2'>
               <input
@@ -208,7 +212,7 @@ const Step4: React.FC<StepProps> = ({ onNext, onUpdate }) => {
       <button
         onClick={handleComplete}
         disabled={!isFormValid}
-        className={`w-full max-w-[340px] py-3 rounded-[12px] text-lg font-bold text-white  mt-0 sm:mt-[40px] ${isFormValid ? 'bg-gradient2 text-heading4 text-white' : 'bg-gray100 text-heading4 text-gray400 cursor-not-allowed'}`}
+        className={`w-[90%] sm:w-full sm:max-w-[340px] py-3 rounded-[12px] text-lg font-bold text-white mt-0 mb-[20px] sm:mt-[40px] sm:mb-0 ${isFormValid ? 'bg-gradient2 text-heading4 text-white cursor-pointer' : 'bg-gray100 text-heading4 text-gray400 cursor-not-allowed'}`}
       >
         완료
       </button>

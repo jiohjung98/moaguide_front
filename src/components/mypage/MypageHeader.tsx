@@ -1,13 +1,18 @@
-import { useMemberStore } from '@/store/user.store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { useMemberStore } from '@/store/user.store';
 
-const MypageHeader = () => {
+interface MypageHeaderProps {
+  bookmarks: number;
+}
+
+const MypageHeader = ({ bookmarks }: MypageHeaderProps) => {
   const { member } = useMemberStore();
   const router = useRouter();
+
   return (
-    <div className="flex flex-col gap-[28px] pb-5 border-b border-gray100">
+    <div className="flex flex-col gap-[28px] pb-5 border-b border-gray100 mt-5 sm:mt-10">
       <div className="w-full flex justify-between items-center">
         <div className="flex-1 flex flex-col gap-[10px]">
           <div className="text-heading2">{member.memberNickName}</div>
@@ -29,10 +34,10 @@ const MypageHeader = () => {
           </div>
           <div>
             <div className="flex items-center gap-[14px]">
-              <div className="text-normal text-white">24개</div>
+              <div className="text-normal text-white">{bookmarks}개</div>
               <img
                 src="/images/mypage/right_white.svg"
-                alt=""
+                alt="Bookmarks"
                 className="cursor-pointer"
               />
             </div>

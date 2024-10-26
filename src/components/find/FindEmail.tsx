@@ -36,40 +36,37 @@ const FindEmail = () => {
 
   const handleRequest = async () => {
     try {
-      const data = await sendVerificationCode(phoneNumber);
-      console.log('인증 요청 성공:', data);
-      setIsRequest(true); // 요청 상태 true
-      setValidTime(300); // 인증 요청 시 타이머 초기화
+      await sendVerificationCode(phoneNumber);
+      setIsRequest(true); 
+      setValidTime(300); 
     } catch (error) {
       console.error('인증 요청 실패:', error);
-      setIsRequest(false); // 요청 실패 시 상태 초기화
+      setIsRequest(false); 
     }
   };
 
   const handleResending = async () => {
     if (isComplete) return;
     try {
-      const data = await sendVerificationCode(phoneNumber);
-      console.log('인증 재요청 성공:', data);
+      await sendVerificationCode(phoneNumber);
       setValidNumber('');
       inputRef.current?.focus();
-      setIsRequest(true); // 요청 상태 true
-      setValidTime(300); // 인증 요청 시 타이머 초기화
+      setIsRequest(true);
+      setValidTime(300); 
     } catch (error) {
       console.error('인증 재요청 실패:', error);
     }
   };
 
   const handleCertify = async () => {
-    if (isComplete) return; // 이미 인증 완료된 상태면 return
+    if (isComplete) return; 
     try {
-      const data = await verifyCode(phoneNumber, validNumber);
-      console.log('인증 완료:', data);
-      setIsComplete(true); // 인증 검사 통과
+      await verifyCode(phoneNumber, validNumber);
+      setIsComplete(true); 
       setIsError(false);
     } catch (error) {
       console.error('인증 실패:', error);
-      setIsError(true); // 인증 검사 실패
+      setIsError(true);
     }
   };
 
@@ -219,7 +216,7 @@ const FindEmail = () => {
             {/* 남은 시간 또는 인증 완료 및 에러 메시지 */}
             {isRequest ? (
               <div
-                className={`text-body7 text-normal mt-[10px]
+                className={`text-xs text-normal mt-[10px]
             ${isComplete && 'hidden'}
             ${isError && 'hidden'}
             `}
@@ -228,12 +225,12 @@ const FindEmail = () => {
               </div>
             ) : null}
             {isComplete && (
-              <div className="text-body7 text-success mt-[10px]">
+              <div className="text-xs text-success mt-[10px]">
                 인증이 완료되었습니다.
               </div>
             )}
             {isError && (
-              <div className="text-body7 text-error mt-[10px]">
+              <div className="text-xs text-error mt-[10px]">
                 인증번호가 일치하지 않습니다.
               </div>
             )}

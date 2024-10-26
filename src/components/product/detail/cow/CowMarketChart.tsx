@@ -1,31 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions
-} from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ICowMarketPrice } from '@/types/CowProductType';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
 const CowMarketChart = () => {
   const [MarketfilteringData, setMarketFilteringData] = useState('cattlePopulation');
   const [MarketDateData, setDateData] = useState('1');
@@ -49,11 +27,25 @@ const CowMarketChart = () => {
     queryFn: fetchData
   });
 
+  const HanwooName = HanwooMarketData?.name;
+  const [HanwooUnit, setHanwooUnit] = useState('');
+
+  useEffect(() => {
+    console.log(HanwooName);
+    if (HanwooName == '한우 사육두수' || HanwooName == '연간 매각두수') {
+      setHanwooUnit('두');
+    } else if (HanwooName == '한우 사육농가수') {
+      setHanwooUnit('가구');
+    } else {
+      setHanwooUnit('톤');
+    }
+  }, [HanwooMarketData, MarketfilteringData, HanwooName]);
+
   const MarketchartRef = useRef(null);
 
-  const HanWooMarketDate = HanwooMarketData?.object.map((item) => item.day) || [];
+  const HanWooMarketDate = HanwooMarketData?.object?.map((item) => item.day) || [];
+  const HanwooMarketCount = HanwooMarketData?.object?.map((item) => item.value) || [];
 
-  const HanwooMarketCount = HanwooMarketData?.object.map((item) => item.value) || [];
   const sortedHanwooMarketCount = [...HanwooMarketCount].sort((a, b) => b - a);
   const maxHanwooMarketCount = sortedHanwooMarketCount[0] || 0;
   const averageHanwooMarketCount =
@@ -69,7 +61,7 @@ const CowMarketChart = () => {
     labels: dataSets.labels,
     datasets: [
       {
-        label: '한우 가격',
+        label: `${HanwooName} (${HanwooUnit})`,
         data: dataSets.data,
         borderColor: '#8a4af3',
         backgroundColor: '#8a4af3',
@@ -150,7 +142,7 @@ const CowMarketChart = () => {
           onChange={handleFiltering}
         />
         <label htmlFor="cattleSale" className="mr-[10px]">
-          연각 매각 두수
+          연간 매각 두수
         </label>
         <input
           type="radio"
@@ -173,7 +165,7 @@ const CowMarketChart = () => {
           한우 거래정육량
         </label>
       </section>
-      <div className=" flex justify-end">
+      <div className=" flex justify-end my-[15px]">
         <button
           className={`w-[55px] mr-2 p-2  rounded-lg ${MarketDateData === '1' ? 'bg-purple-500 text-white' : 'bg-gray-300  '}`}
           onClick={() => setDateData('1')}>

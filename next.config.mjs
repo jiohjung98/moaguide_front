@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+  openAnalyzer: false
+});
 const nextConfig = {
+  styledComponents: true,
+  output: 'standalone',
   experimental: { instrumentationHook: true },
   reactStrictMode: true,
 
@@ -10,13 +18,19 @@ const nextConfig = {
       'scs-phinf.pstatic.net',
       'api.moaguide.com',
       'entertain.naver.com',
-    ],
+      's.pstatic.net',
+      'search.pstatic.net',
+      'imgnews.pstatic.net',
+      'mimgnews.pstatic.net',
+      'image.newsis.com',
+      'www.chuksannews.co.kr'
+    ]
   },
-  
+
   swcMinify: true,
-  
+
   compiler: {
-    styledComponents: true,
+    styledComponents: true
   },
 
   webpack: (config, { isServer }) => {
@@ -30,7 +44,7 @@ const nextConfig = {
       else config.resolve.alias['msw/node'] = false;
     }
     return config;
-  },
+  }
 };
 
-export default nextConfig;
+export default bundleAnalyzer(nextConfig);

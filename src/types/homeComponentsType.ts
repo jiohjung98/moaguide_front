@@ -5,6 +5,7 @@ export interface MainReportType {
   date: string;
   imageLink: string;
   description: string;
+  link: string;
 }
 
 export interface MainNews {
@@ -32,6 +33,7 @@ export interface IssueListItem {
   category: string;
   link: string;
   date: string;
+  imgUrl: string;
 }
 
 export interface MainProductItem {
@@ -43,6 +45,7 @@ export interface MainProductItem {
   priceRate: number;
   totalPrice: number;
   lastDivide_rate: number;
+  bookmark: boolean;
 }
 
 export interface ReportListsItem {

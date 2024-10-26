@@ -20,16 +20,28 @@ import {
   IContentYoutubeViewCharts
 } from '@/types/MusicProductType';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
+// const customTextPlugin = {
+//   id: 'customText',
+//   beforeDraw: (chart: any) => {
+//     const { datasets } = chart.data;
+//     const hasData = datasets.some((dataset: any) =>
+//       dataset.data.some((value: number) => value !== 0)
+//     );
+//     if (!hasData) {
+//       const ctx = chart.ctx;
+//       const width = chart.width;
+//       const height = chart.height;
+//       ctx.save();
+//       ctx.textAlign = 'center';
+//       ctx.textBaseline = 'middle';
+//       ctx.font = '16px Arial';
+//       ctx.fillText('준비중입니다', width / 2, height / 2);
+//       ctx.restore();
+//     }
+//   }
+// };
+
+// ChartJS.register(customTextPlugin);
 
 const YoutubeSearchChart = () => {
   const pathname = usePathname();
@@ -57,7 +69,7 @@ const YoutubeSearchChart = () => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['YoutubeSearchChart', filteringData],
+    queryKey: ['YoutubeSearchChart', filteringData, lastSegment],
     queryFn: fetchData
   });
   const chartRef = useRef(null);
@@ -69,7 +81,7 @@ const YoutubeSearchChart = () => {
   const sortedYoutubeSearchCount = [...YoutubeSearchCount].sort((a, b) => b - a);
   const maxYoutubeSearchCount = sortedYoutubeSearchCount[0] || 0;
   const averageYoutubeSearchCount =
-    YoutubeSearchCount.reduce((acc, val) => acc + val, 0) / YoutubeSearchCount.length ||
+    YoutubeSearchCount?.reduce((acc, val) => acc + val, 0) / YoutubeSearchCount.length ||
     0;
   const newVariable = Math.floor(maxYoutubeSearchCount + averageYoutubeSearchCount);
 
@@ -145,7 +157,7 @@ const YoutubeSearchChart = () => {
 
   return (
     <div>
-      <div className="mb-4  flex justify-end">
+      <div className="mb-4  flex justify-start">
         <button
           className={`w-[55px] mr-2 p-2  rounded-lg ${filteringData === '3' ? 'bg-purple-500 text-white' : 'bg-gray-300  '}`}
           onClick={() => setFilteringData('3')}>

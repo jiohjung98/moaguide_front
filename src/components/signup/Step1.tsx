@@ -3,12 +3,12 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import PrivacyModal from './modal/PrivacyModal';
 import ServiceModal from './modal/ServiceModal';
-import AgeModal from './modal/AgeModal';
 import MarketingModal from './modal/MarketingModal';
+import Link from 'next/link';
 
 interface StepProps {
   onNext: () => void;
-  onUpdate: (data: { marketingConsent: boolean }) => void;
+  onUpdate: (data: { marketingConsent: number }) => void; 
 }
 
 const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
@@ -16,7 +16,6 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
   const [checks, setChecks] = useState({
     privacy: false,
     service: false,
-    age: false,
     marketing: false,
   });
   const [activePage, setActivePage] = useState<string | null>(null);
@@ -29,11 +28,11 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
     const newChecks = {
       privacy: newCheckedState,
       service: newCheckedState,
-      age: newCheckedState,
       marketing: newCheckedState,
     };
     setChecks(newChecks);
-    onUpdate({ marketingConsent: newCheckedState });
+    
+    onUpdate({ marketingConsent: newCheckedState ? 7 : 0 });
   };
 
   const handleCheckChange = (key: string) => {
@@ -42,9 +41,11 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
     setAllChecked(Object.values(newChecks).every(Boolean));
 
     if (key === 'marketing') {
-      onUpdate({ marketingConsent: newChecks.marketing });
+      const marketingConsentValue = newChecks.marketing ? 7 : 0;
+      onUpdate({ marketingConsent: marketingConsentValue });
     }
   };
+
 
   const handleArrowClick = (key: string, event: React.MouseEvent) => {
     event.stopPropagation();
@@ -55,10 +56,16 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
     setActivePage(null);
   };
 
-  const isNextEnabled = checks.privacy && checks.service && checks.age;
+  const isNextEnabled = checks.privacy && checks.service;
+
   return (
-    <div className="min-h-[calc(100dvh-100px)] flex flex-col items-center justify-between mb-[100px] sm:min-h-[100vh] sm:justify-center sm:mb-0">
-      <div className="max-w-[340px] w-full mx-auto mt-[30px] sm:mt-0">
+    <div className="min-h-[calc(100dvh-75.5px)] flex flex-col items-center justify-between sm:min-h-[100vh] sm:justify-center">
+      <div className="w-[90%] sm:max-w-[340px] sm:w-full mx-auto mt-[30px] sm:mt-0">
+      {/* <section className="hidden sm:flex mt-8 mb-6 sm:items-center sm:justify-center">
+        <Link href={'/'} className='cursor-pointer'>
+          <img src="/images/logo.svg" alt="logo" className="w-[202px] h-[28px] items-center justify-center" />
+        </Link>
+      </section> */}
         <Image
           src={'/sign/LeftArrowIcon.svg'}
           alt='뒤로가기'
@@ -93,7 +100,7 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
             />
             <span className="ml-2 font-medium">모두 동의합니다</span>
           </div>
-          {['privacy', 'service', 'age', 'marketing'].map((key, index) => (
+          {['privacy', 'service', 'marketing'].map((key, index) => (
             <div
               key={key}
               className={`flex items-center justify-between py-4 rounded-lg cursor-pointer`}
@@ -107,10 +114,9 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
                   height={24}
                 />
                 <span className="ml-2 font-medium">
-                  {index < 3 ? `[필수] ` : `[선택] `}
+                  {index < 2 ? `[필수] ` : `[선택] `}
                   {key === 'privacy' && '개인정보 수집 / 이용동의'}
                   {key === 'service' && '서비스 이용 동의'}
-                  {key === 'age' && '만 14세 이상입니다'}
                   {key === 'marketing' && '마케팅 메시지 수신 동의'}
                 </span>
               </div>
@@ -128,7 +134,7 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
 
       <button
         onClick={onNext}
-        className={`w-full max-w-[340px] py-3 rounded-[12px] font-bold text-lg transition duration-300 mt-0 sm:mt-[40px] ${
+        className={`w-[90%] sm:w-full sm:max-w-[340px] py-3 rounded-[12px] font-bold text-lg transition duration-300 mt-0 sm:mt-[40px] mb-[20px] sm:mb-0 ${
           isNextEnabled
             ? 'bg-gradient2 text-white hover:bg-purple-700'
             : 'bg-gray100 text-heading4 text-gray400 cursor-not-allowed'
@@ -140,7 +146,6 @@ const Step1: React.FC<StepProps> = ({ onNext, onUpdate }) => {
 
       {activePage === 'privacy' && <PrivacyModal onClose={closePage} />}
       {activePage === 'service' && <ServiceModal onClose={closePage} />}
-      {activePage === 'age' && <AgeModal onClose={closePage} />}
       {activePage === 'marketing' && <MarketingModal onClose={closePage} />}
     </div>
   );

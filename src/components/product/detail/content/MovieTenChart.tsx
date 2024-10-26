@@ -28,18 +28,27 @@ ChartJS.register(
   ChartDataLabels
 );
 
+const filteringLabel = {
+  tenscreen: '스크린 수',
+  tenshowtime: '상영 횟수',
+  tenaudience: '관객 수',
+  tenrevenue: '수익',
+  tenrank: '순위'
+} as const;
+type FilteringDataKey = keyof typeof filteringLabel;
+
 const MovieTenChart = () => {
   const pathname = usePathname();
   const lastSegment = pathname.split('/').pop();
-  const [filteringData, setFilteringData] = useState('tenscreen');
+  const [filteringData, setFilteringData] = useState<FilteringDataKey>('tenscreen');
 
   const handleFiltering = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilteringData(e.target.id);
+    setFilteringData(e.target.id as FilteringDataKey);
   };
 
   const fetchData = async () => {
     const response = await axios.get<IContentMovieCharts>(
-      `https://api.moaguide.com/detail/contents/${filteringData}/ten/${lastSegment}`
+      `https://api.moaguide.com/detail/content/${filteringData}/ten/${lastSegment}`
     );
     return response.data;
   };
@@ -49,7 +58,7 @@ const MovieTenChart = () => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['MovieTenChart', filteringData],
+    queryKey: ['MovieTenChart', filteringData, lastSegment],
     queryFn: fetchData
   });
 
@@ -73,7 +82,7 @@ const MovieTenChart = () => {
     labels: dataSets.labels,
     datasets: [
       {
-        label: '주가',
+        label: filteringLabel[filteringData],
         data: dataSets.data,
         borderColor: '#8a4af3',
         backgroundColor: '#8a4af3',
@@ -135,55 +144,55 @@ const MovieTenChart = () => {
 
   return (
     <div>
-      <section>
+      <section className="mb-[15px]">
         <input
           type="radio"
           id="tenscreen"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'tenscreen'}
           onChange={handleFiltering}
         />
-        <label htmlFor="tenscreen" className="mr-[10px]">
+        <label htmlFor="tenscreen" className="mr-[10px] cursor-pointer">
           개봉10일 스크린 수
         </label>
         <input
           type="radio"
           id="tenshowtime"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'tenshowtime'}
           onChange={handleFiltering}
         />
-        <label htmlFor="tenshowtime" className="mr-[10px]">
+        <label htmlFor="tenshowtime" className="mr-[10px] cursor-pointer">
           개봉10일 상영횟수
         </label>
         <input
           type="radio"
           id="tenaudience"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'tenaudience'}
           onChange={handleFiltering}
         />
-        <label htmlFor="tenaudience" className="mr-[10px]">
+        <label htmlFor="tenaudience" className="mr-[10px] cursor-pointer">
           개봉10일 관객수
         </label>
         <input
           type="radio"
           id="tenrevenue"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'tenrevenue'}
           onChange={handleFiltering}
         />
-        <label htmlFor="tenrevenue" className="mr-[10px]">
+        <label htmlFor="tenrevenue" className="mr-[10px] cursor-pointer">
           개봉10일 매출액
         </label>
         <input
           type="radio"
           id="tenrank"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'tenrank'}
           onChange={handleFiltering}
         />
-        <label htmlFor="tenrank" className="mr-[10px]">
+        <label htmlFor="tenrank" className="mr-[10px] cursor-pointer">
           개봉10일 순위
         </label>
       </section>

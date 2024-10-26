@@ -4,19 +4,19 @@ import axios from 'axios';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
-const MovieContent = () => {
+const MovieContent = ({ name }: { name: string | undefined }) => {
   const pathname = usePathname();
   const lastSegment = pathname.split('/').pop(); // 경로의 마지막 부분 추출
 
   const fetchData = async () => {
     const response = await axios.get<IContentMovieStats>(
-      `https://api.moaguide.com/detail/contents/sub/${lastSegment}`
+      `https://api.moaguide.com/detail/content/sub/${lastSegment}`
     );
     return response.data;
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['MovieContent'],
+    queryKey: ['MovieContent', lastSegment],
     queryFn: fetchData
   });
 
@@ -24,12 +24,15 @@ const MovieContent = () => {
     data?.schedules.filter((item) =>
       item.imgLink.startsWith('https://www.kobis.or.kr/')
     ) || [];
-
+  console.log(name);
+  // console.log
   return (
     <div className="flex mt-[50px]">
       <div className="w-full grid lg:grid-cols-2 gap-4 md:grid-cols-2 desk:grid-cols-1">
         {movieData.map((item) => (
-          <div key={item.id} className="flex">
+          <div
+            key={item.id}
+            className={`flex  pl-3 ${item.title === name ? 'border-red-500 border-[5px] ' : null} `}>
             <div className="w-[107px] h-[174px] relative ">
               <Image
                 src={item.imgLink}

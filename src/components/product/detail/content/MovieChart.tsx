@@ -28,18 +28,27 @@ ChartJS.register(
   ChartDataLabels
 );
 
+const filteringLabel = {
+  screen: '스크린 수',
+  showtime: '상영 횟수',
+  audience: '관객 수',
+  revenue: '수익',
+  rank: '순위'
+} as const;
+type FilteringDataKey = keyof typeof filteringLabel;
+
 const MovieChart = () => {
   const pathname = usePathname();
   const lastSegment = pathname.split('/').pop();
-  const [filteringData, setFilteringData] = useState('screen');
+  const [filteringData, setFilteringData] = useState<FilteringDataKey>('screen');
 
   const handleFiltering = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilteringData(e.target.id);
+    setFilteringData(e.target.id as FilteringDataKey);
   };
 
   const fetchData = async () => {
     const response = await axios.get<IContentMovieCharts>(
-      `https://api.moaguide.com/detail/contents/${filteringData}/${lastSegment}`
+      `https://api.moaguide.com/detail/content/${filteringData}/${lastSegment}`
     );
     return response.data;
   };
@@ -49,7 +58,7 @@ const MovieChart = () => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['MovieChart', filteringData],
+    queryKey: ['MovieChart', filteringData, lastSegment],
     queryFn: fetchData
   });
 
@@ -73,7 +82,7 @@ const MovieChart = () => {
     labels: dataSets.labels,
     datasets: [
       {
-        label: '주가',
+        label: filteringLabel[filteringData],
         data: dataSets.data,
         borderColor: '#8a4af3',
         backgroundColor: '#8a4af3',
@@ -134,56 +143,56 @@ const MovieChart = () => {
   };
 
   return (
-    <div>
-      <section>
+    <div className="mt-[60px]">
+      <section className="mb-[15px]">
         <input
           type="radio"
           id="screen"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'screen'}
           onChange={handleFiltering}
         />
-        <label htmlFor="screen" className="mr-[10px]">
+        <label htmlFor="screen" className="mr-[10px] cursor-pointer">
           날짜별 스크린 수
         </label>
         <input
           type="radio"
           id="showtime"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'showtime'}
           onChange={handleFiltering}
         />
-        <label htmlFor="showtime" className="mr-[10px]">
+        <label htmlFor="showtime" className="mr-[10px] cursor-pointer">
           날짜별 상영횟수
         </label>
         <input
           type="radio"
           id="audience"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'audience'}
           onChange={handleFiltering}
         />
-        <label htmlFor="audience" className="mr-[10px]">
+        <label htmlFor="audience" className="mr-[10px] cursor-pointer">
           날짜별 관객수
         </label>
         <input
           type="radio"
           id="revenue"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'revenue'}
           onChange={handleFiltering}
         />
-        <label htmlFor="revenue" className="mr-[10px]">
+        <label htmlFor="revenue" className="mr-[10px] cursor-pointer">
           날짜별 매출액
         </label>
         <input
           type="radio"
           id="rank"
-          className=" mr-[5px]"
+          className=" mr-[5px] cursor-pointer"
           checked={filteringData == 'rank'}
           onChange={handleFiltering}
         />
-        <label htmlFor="rank" className="mr-[10px]">
+        <label htmlFor="rank" className="mr-[10px] cursor-pointer">
           날짜별 순위
         </label>
       </section>

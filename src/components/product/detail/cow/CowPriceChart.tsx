@@ -1,31 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions
-} from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { ICowProductPrice } from '@/types/CowProductType';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
 
 const CowPriceChart = () => {
   const [filteringData, setFilteringData] = useState('averagePrice');
@@ -52,9 +29,9 @@ const CowPriceChart = () => {
 
   const chartRef = useRef(null);
 
-  const HanWooDate = HanwooData?.object.map((item) => item.day) || [];
+  const HanWooDate = HanwooData?.object?.map((item) => item.day) || [];
+  const HanwooCount = HanwooData?.object?.map((item) => item.value) || [];
 
-  const HanwooCount = HanwooData?.object.map((item) => item.value) || [];
   const sortedHanwooCount = [...HanwooCount].sort((a, b) => b - a);
   const maxHanwooCount = sortedHanwooCount[0] || 0;
   const averageHanwooCount =
@@ -65,12 +42,13 @@ const CowPriceChart = () => {
     labels: HanWooDate,
     data: HanwooCount
   };
-
+  console.log(dataSets.data);
   const data = {
     labels: dataSets.labels,
     datasets: [
       {
         label: '한우 가격',
+        // data: String(dataSets.data) + HanwooUnit,
         data: dataSets.data,
         borderColor: '#8a4af3',
         backgroundColor: '#8a4af3',
@@ -174,7 +152,7 @@ const CowPriceChart = () => {
           두당 생산비
         </label>
       </section>
-      <div className=" flex justify-end">
+      <div className=" flex justify-end my-[15px]">
         <button
           className={`w-[55px] mr-2 p-2  rounded-lg ${DateData === '1' ? 'bg-purple-500 text-white' : 'bg-gray-300  '}`}
           onClick={() => setDateData('1')}>

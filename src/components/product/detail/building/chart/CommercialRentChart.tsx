@@ -1,28 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 interface RentData {
   year: number;
@@ -93,7 +73,7 @@ const CommercialRentChart = ({ rentType }: { rentType: boolean | undefined }) =>
 
     Object.keys(data.rent).forEach((region) => {
       const regionData = data.rent[region];
-      const values = regionData.map((item) => {
+      const values = regionData?.map((item) => {
         const label = `${item.year} Q${item.quarter}`;
         labelsSet.add(label);
         allValues.push(item.value);

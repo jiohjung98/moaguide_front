@@ -3,29 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Line } from 'react-chartjs-2';
 import axios from 'axios';
 import { usePathname } from 'next/navigation';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions
-} from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
+import { ChartOptions } from 'chart.js';
 
 // API 데이터 타입 정의
 interface LandData {
@@ -82,28 +60,28 @@ const OfficialPriceChart = () => {
 
   // useQuery로 데이터 패칭
   const { data, error, isLoading } = useQuery({
-    queryKey: ['landPriceData'],
+    queryKey: ['landPriceData', lastSegment],
     queryFn: fetchData
   });
 
   // 데이터를 필터링하고 변환하는 함수
   const transformAndFilterData = (): ChartData => {
-    if (!data || !data.lands) return { labels: [], datasets: [] };
+    if (!data || !data?.lands) return { labels: [], datasets: [] };
 
     // 사용자가 선택한 기간에 맞게 데이터를 필터링
-    const filteredLandPrices = data.lands.filter((item) => {
+    const filteredLandPrices = data?.lands?.filter((item) => {
       const year = parseInt(item.day);
       return year >= startYear && year <= endYear;
     });
 
     // 레이블 생성 및 역순으로 정렬
-    const labels = filteredLandPrices.map((item) => `${item.day}`).reverse();
+    const labels = filteredLandPrices?.map((item) => `${item.day}`).reverse();
 
     // 데이터셋 생성 및 역순으로 정렬
     const datasets = [
       {
         label: '공시지가',
-        data: filteredLandPrices.map((item) => item.value).reverse(),
+        data: filteredLandPrices?.map((item) => item.value).reverse(),
         borderColor: '#8A4AF3', // 선의 색상
         backgroundColor: '#8A4AF3',
         pointBackgroundColor: '#8A4AF3',

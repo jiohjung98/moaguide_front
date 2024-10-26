@@ -11,14 +11,16 @@ import MusicProfit from '@/components/product/detail/music/MusicProfit';
 import MusicProductDetail from '@/components/product/detail/music/MusicProductDetail';
 import Link from 'next/link';
 import { useAddBookMark, useDeleteBookMark } from '@/factory/BookMark';
-import { set } from 'lodash';
+import { useAuthStore } from '@/store/userAuth.store';
+import '../../../../plugin';
+
 const MusicDetailpage = (props: any) => {
   const [sort, setSort] = useState('profit');
   const url = props.params.id;
   const { data, isLoading, isError } = getMusicProductDetail(props.params.id);
 
   const [localData, setLocalData] = useState(data);
-
+  const { isLoggedIn } = useAuthStore();
   useEffect(() => {
     if (!localData) {
       setLocalData(data);
@@ -33,14 +35,23 @@ const MusicDetailpage = (props: any) => {
     bookmark: boolean | undefined
   ) => {
     // 낙관적 업데이트를 위해 로컬 상태를 먼저 변경합니다.
-    setLocalData((prevData) =>
-      prevData ? { ...prevData, bookmark: !prevData.bookmark } : prevData
-    );
+    if (isLoggedIn) {
+      setLocalData((prevData) =>
+        prevData ? { ...prevData, bookmark: !prevData.bookmark } : prevData
+      );
 
-    if (!bookmark) {
-      addmutation.mutate({ productId, bookmark });
-    } else if (bookmark) {
-      deletemutation.mutate({ productId });
+      if (!bookmark) {
+        addmutation.mutate({ productId, bookmark });
+        alert('북마크 추가가 완료되었습니다');
+        window.location.reload();
+      } else if (bookmark) {
+        deletemutation.mutate({ productId });
+        alert('북마크 삭제가 완료되었습니다');
+        window.location.reload();
+      }
+    } else {
+      alert('로그인이 필요한 서비스입니다.');
+      window.location.href = '/sign';
     }
   };
   return (
@@ -53,21 +64,27 @@ const MusicDetailpage = (props: any) => {
               width={181}
               height={181}
               alt="Profile Image"
+              className="object-cover w-[181px] h-[181px] rounded-[8px] "
             />
 
-            <div className="desk:hidden  desk2:flex flex-col ml-[28px] ">
+            <div className="desk:hidden  desk2:flex flex-col ml-[28px] h-[180px] ">
               <div className="flex">
                 <div className="bg-gray-200 text-gray-400  rounded-md w-[54px] h-[26px] flex justify-center items-center mb-[13px] ">
                   {CATEGORY[data?.category as string]}
                 </div>
-                <div className="text-gray-400 ml-[3px]">{data?.platform}</div>
+                <div className="text-gray-400  ml-[3px]">{data?.platform}</div>
               </div>
-
-              <div className="w-80 text-black text-2xl font-bold mb-[60px] ">
-                {data?.name}
+              <div className="w-80 flex flex-col  items-start justify-center ">
+                <div className=" text-black text-2xl font-bold  ">{data?.name}</div>
+                <div className="text-sm font-bold mt-1 ml-1 ">{data?.singer}</div>
               </div>
-
-              <div className="desk2:flex  desk:hidden">
+              <div className="ml-1 mt-[10px]  font-bold">
+                과거 1년 저작권료(1주){' '}
+                <span className="text-red-500 ml-1">
+                  {data?.yearDvide.toLocaleString()} ({data?.yearDvideRate}%)
+                </span>
+              </div>
+              <div className="desk2:flex  desk:hidden flex-1 items-end">
                 <Link href={data?.link || '#'}>
                   <div className=" w-[180px] h-[49px] flex justify-center items-center border-2 border-gray-200 rounded-xl">
                     <div>해당 플랫폼으로 이동</div>
@@ -102,7 +119,7 @@ const MusicDetailpage = (props: any) => {
           <div className="desk2:hidden  desk:flex  flex-col">
             <div className="flex flex-col desk2:ml-[28px] desk:ml-[5px] ">
               <div className="flex">
-                <div className="bg-gray-200 text-gray-400  rounded-md w-[54px] h-[26px] flex justify-center items-center mb-[13px] ">
+                <div className="bg-gray-200 text-gray-400  rounded-md w-[54px] h-[26px] flex justify-center items-center mb-[10px] ">
                   {CATEGORY[data?.category || '']}
                 </div>
                 <div className="text-gray-400 ml-[3px]">{data?.platform}</div>
@@ -110,6 +127,13 @@ const MusicDetailpage = (props: any) => {
 
               <div className="w-80 text-black text-2xl font-bold desk2:mb-[60px] desk:mb-[20px] ">
                 {data?.name}
+              </div>
+              <div className="text-sm font-bold mb-[5px] "> {data?.singer}</div>
+              <div className=" mb-[20px]  font-bold">
+                과거 1년 저작권료(1주)
+                <span className="text-red-500 ml-1">
+                  {data?.yearDvide.toLocaleString()} ({data?.yearDvideRate}%)
+                </span>
               </div>
             </div>
           </div>

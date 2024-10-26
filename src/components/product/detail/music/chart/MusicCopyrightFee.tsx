@@ -33,7 +33,7 @@ ChartJS.register(
 const MusicCopyRightFeeChart = () => {
   const pathname = usePathname();
   const lastSegment = pathname.split('/').pop();
-  const [filteringData, setFilteringData] = useState('100');
+  const [filteringData, setFilteringData] = useState('3');
 
   const fetchData = async () => {
     try {
@@ -52,26 +52,34 @@ const MusicCopyRightFeeChart = () => {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['MusicCopyRightFeeChart', filteringData],
+    queryKey: ['MusicCopyRightFeeChart', filteringData, lastSegment],
     queryFn: fetchData
   });
 
   const paymentDate =
     (CopyRightFeeData?.divide &&
-      CopyRightFeeData?.divide.map((item) => item.paymentDate)) ||
+      CopyRightFeeData?.divide?.map((item) => item.paymentDate)) ||
     [];
 
   const CopyRightFeeDivideCount =
     (CopyRightFeeData?.divide &&
-      CopyRightFeeData?.divide.map((item) => Number(item.divide))) ||
+      CopyRightFeeData?.divide?.map((item) => Number(item.divide))) ||
     [];
   const sortedCopyRightFeeDivideCount = [...CopyRightFeeDivideCount].sort(
     (a, b) => b - a
   );
   const maxCopyRightFeeDivideCount = sortedCopyRightFeeDivideCount[0] || 0;
-  const averageCopyRightFeeDivideCount =
-    CopyRightFeeDivideCount.reduce((acc, val) => acc + val, 0) /
-      CopyRightFeeDivideCount.length || 0;
+
+  const averageCopyRightFeeDivideCount = (() => {
+    if (CopyRightFeeDivideCount.length === 0) {
+      return 0;
+    }
+    let sum = 0;
+    for (let i = 0; i < CopyRightFeeDivideCount.length; i++) {
+      sum += CopyRightFeeDivideCount[i];
+    }
+    return sum / CopyRightFeeDivideCount.length;
+  })();
 
   const BarnewVariable =
     Math.floor(maxCopyRightFeeDivideCount + averageCopyRightFeeDivideCount) * 1.5;
@@ -80,23 +88,50 @@ const MusicCopyRightFeeChart = () => {
 
   const CopyRightFeeDivideRateCount =
     (CopyRightFeeData?.divide &&
-      CopyRightFeeData?.divide.map((item) => Number(item.divide))) ||
+      CopyRightFeeData?.divide?.map((item) => Number(item.divide_rate))) ||
     [];
   const sortedCopyRightFeeDivideRateCount = [...CopyRightFeeDivideRateCount].sort(
     (a, b) => b - a
   );
   const maxCopyRightFeeDivideRateCount = sortedCopyRightFeeDivideRateCount[0] || 0;
-  const averageCopyRightFeeDivideRateCount =
-    CopyRightFeeDivideRateCount.reduce((acc, val) => acc + val, 0) /
-      CopyRightFeeDivideRateCount.length || 0;
 
-  const LinenewVariable = Math.floor(
-    maxCopyRightFeeDivideRateCount + averageCopyRightFeeDivideRateCount
-  );
+  const averageCopyRightFeeDivideRateCount = (() => {
+    if (CopyRightFeeDivideRateCount.length === 0) {
+      return 0;
+    }
+
+    let sum = 0;
+    for (let i = 0; i < CopyRightFeeDivideRateCount.length; i++) {
+      sum += CopyRightFeeDivideRateCount[i];
+    }
+
+    return sum / CopyRightFeeDivideRateCount.length;
+  })();
+
+  const LinenewVariable =
+    Math.floor(maxCopyRightFeeDivideRateCount + averageCopyRightFeeDivideRateCount) * 1.5;
 
   const data = {
     labels: paymentDate,
     datasets: [
+      {
+        type: 'line' as const,
+        label: '시가배당률',
+        data: CopyRightFeeDivideRateCount,
+        borderColor: '#0000FF',
+        backgroundColor: '#0000FF',
+        pointBackgroundColor: '#0000FF',
+        pointBorderColor: '#0000FF',
+        fill: false,
+        tension: 0.4,
+        yAxisID: 'y2',
+        pointStyle: 'circle',
+        pointRadius: 6,
+        datalabels: {
+          display: false
+        },
+        order: 1 // Line 그래프를 먼저 렌더링
+      },
       {
         type: 'bar' as const,
         label: '저작권료',
@@ -131,24 +166,8 @@ const MusicCopyRightFeeChart = () => {
           anchor: 'end' as const,
           color: '#000',
           formatter: (value: number) => `${value}원`
-        }
-      },
-      {
-        type: 'line' as const,
-        label: '시가저작권료',
-        data: CopyRightFeeDivideRateCount,
-        borderColor: '#0000FF',
-        backgroundColor: '#0000FF',
-        pointBackgroundColor: '#0000FF',
-        pointBorderColor: '#0000FF',
-        fill: false,
-        tension: 0.4,
-        yAxisID: 'y2',
-        pointStyle: 'circle',
-        pointRadius: 6,
-        datalabels: {
-          display: false
-        }
+        },
+        order: 2 // Bar 그래프를 나중에 렌더링
       }
     ]
   };
@@ -195,7 +214,7 @@ const MusicCopyRightFeeChart = () => {
         enabled: true
       },
       datalabels: {
-        display: true
+        display: false
       }
     }
   };

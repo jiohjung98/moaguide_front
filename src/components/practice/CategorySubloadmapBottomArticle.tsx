@@ -5,14 +5,13 @@ import Image from 'next/image';
 const CategorySubloadmapBottomArticle: React.FC<InvestmentGuideProps> = ({ id, title, description, date, imageLink, link }) => {
 
   const handleClick = () => {
-    console.log(link);
     window.open(link, '_blank');
   };
 
   const formattedDate = date.split('T')[0];
 
   return (
-    <div className='w-full pt-5' onClick={handleClick}> 
+    <div className='w-full pb-5' onClick={handleClick}> 
       <div className="flex gap-5 items-center cursor-pointer">
         <Image
           src={imageLink} 

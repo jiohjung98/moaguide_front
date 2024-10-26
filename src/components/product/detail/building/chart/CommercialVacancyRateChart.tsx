@@ -1,29 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions
-} from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { ChartOptions } from 'chart.js';
+
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
 
 interface RentData {
   year: number;
@@ -96,9 +77,9 @@ const CommercialVacancyRateChart = ({ rentType }: { rentType: boolean | undefine
     const labelsSet: Set<string> = new Set();
     const datasets: any[] = [];
 
-    Object.keys(data.vacancyrate).forEach((region) => {
+    Object.keys(data.vacancyrate)?.forEach((region) => {
       const regionData = data.vacancyrate[region];
-      const values = regionData.map((item) => {
+      const values = regionData?.map((item) => {
         const label = `${item.year} Q${item.quarter}`;
         labelsSet.add(label);
         return item.value;

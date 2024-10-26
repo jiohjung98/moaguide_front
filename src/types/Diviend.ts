@@ -2,8 +2,9 @@ export interface IDivide {
   product_Id: string;
   category: string;
   name: string;
-  dividend: number;
-  dividendRate: number;
+  dividend?: number;
+  dividendRate?: number;
+  recruitmentRate: number;
 }
 
 export interface ISummary {
@@ -37,6 +38,7 @@ export interface IProductDetail {
   dividend: number;
   lastDivide_rate: number;
   bookmark: boolean;
+  sale: boolean;
 }
 
 export interface IProductEndRecruit {
@@ -47,6 +49,7 @@ export interface IProductEndRecruit {
   totalPrice: number;
   sailRate: number;
   bookmark: boolean;
+  sale: boolean;
 }
 
 export interface IProductRecruit {
@@ -58,6 +61,7 @@ export interface IProductRecruit {
   platform: string;
   recruitmentRate: number;
   bookmark: boolean;
+  sale: boolean;
 }
 
 interface IProductDetailSort {

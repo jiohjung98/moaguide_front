@@ -29,13 +29,13 @@ const Gnb = () => {
 
   return (
     <div
-      className={
+      className={` sticky top-0 z-[99999] bg-white h-[59px] ${
         pathname.includes('/mypage') ||
         pathname.includes('/report/') ||
         pathname.includes('/payment')
           ? 'shadow-custom-light border-b border-gray100'
           : ''
-      }>
+      }`}>
       <div className="py-[16px] max-w-[1000px] mx-auto flex items-center justify-between sm:px-0 sm:py-3 w-[90%] lg:w-[100%]">
         <Link href={'/'} className="cursor-pointer">
           <img src="/images/logo.svg" alt="logo" className="w-[144px] h-5" />
@@ -44,20 +44,20 @@ const Gnb = () => {
           <div onClick={() => router.push('/search')} className="cursor-pointer">
             <img src="/images/gnb/search.svg" alt="search_icon" className="w-6 h-6" />
           </div>
-          {/* <div
+          <div
             onClick={() => {
               if (isLoggedIn) {
-                router.push('/sign');
+                router.push('/alarm');
               } else {
-                router.push('/mypage');
+                router.push('/sign');
               }
             }}
             className="cursor-pointer">
             <img src="/images/gnb/alert.svg" alt="alert" className="w-6 h-6" />
-          </div> */}
-          <div className="cursor-pointer">
-            <img src="/images/gnb/alert.svg" alt="alert" className="w-6 h-6" />
           </div>
+          {/* <div className="cursor-pointer">
+            <img src="/images/gnb/alert.svg" alt="alert" className="w-6 h-6" />
+          </div> */}
           <div className="hidden items-center min-h-[35px] sm:flex">
             {isLoggedIn ? (
               <Link href={'/mypage'}>

@@ -1,15 +1,37 @@
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getToken } from '@/utils/localStorage';
 const Filter = () => {
+  const token = getToken();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
   const router = useRouter();
   const sort = searchParams.get('category');
 
   const handleClick = (key: string) => {
+    const scrollPosition = window.innerHeight * 0.7;
+
+    // 현재 미술품 콘텐츠가 없어서 특정하게 설정한 로직
+    params.set('subcategory', 'trade');
+    params.set('sort', 'lastDivide_rate desc');
+    if (key === 'art' || key === 'content' || key === 'cow') {
+      params.set('subcategory', 'end');
+      params.set('sort', 'end');
+    }
+    if (key === 'bookmark' && token === undefined) {
+      alert('로그인이 필요한 서비스입니다.');
+      window.location.href = '/sign';
+      return;
+    }
+    //////////////////
+
     params.set('category', key);
     params.set('page', '1');
     router.replace(`?${params.toString()}`, { scroll: false });
+    window.scrollTo({
+      top: scrollPosition,
+      behavior: 'smooth'
+    });
   };
   interface FilterElementType {
     [key: string]: { name: string; img: string };
@@ -21,12 +43,12 @@ const Filter = () => {
     music: { name: '음악저작권', img: 'MusicalNote.svg' },
     cow: { name: '한우', img: 'CowFace.svg' },
     art: { name: '미술', img: 'FramedPicture.svg' },
-    contents: { name: '콘텐츠', img: 'ClapperBoard.svg' },
+    content: { name: '콘텐츠', img: 'ClapperBoard.svg' },
     bookmark: { name: '북마크', img: 'BookmarkSimple.svg' }
   };
 
   return (
-    <div className=" h-[85px] flex flex-row desk2:justify-center md:gap-20 my-[28px] desk:mx-[20px] desk:justify-start  desk:gap-4  overflow-x-scroll overflow-y-hidden scrollbar-hide">
+    <div className="bg-white sticky desk:top-[58px]  md:top-[105px] z-[99999] h-[143px] flex flex-row desk2:justify-center md:gap-20  items-center desk:justify-start  desk:gap-4  overflow-x-scroll overflow-y-hidden scrollbar-hide">
       {Object.keys(FilterElement).map((key) => (
         <div key={key} className="  cursor-pointer ">
           <div className=" w-[61px] flex flex-row justify-center items-center ">
